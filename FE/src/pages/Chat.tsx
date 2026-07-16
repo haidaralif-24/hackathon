@@ -6,19 +6,32 @@ import { Send, Loader2, HeartPulse, ChevronDown, Plus, X, MessageCircle } from "
 import MapMessage from "../components/MapMessage"
 
 function now(): string {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  if (diff < 86400000 && d.getDate() === now.getDate()) return "Today"
-  if (diff < 172800000 && d.getDate() === now.getDate() - 1) return "Yesterday"
-  return d.toLocaleDateString()
+  const d = new Date(iso);
+  const now = new Date();
+  const diff = now.getTime() - d.getTime();
+  if (diff < 86400000 && d.getDate() === now.getDate()) return "Today";
+  if (diff < 172800000 && d.getDate() === now.getDate() - 1) return "Yesterday";
+  return d.toLocaleDateString();
 }
 
-function ChatBubbleUser({ content, time, avatar, name }: { content: string; time: string; avatar?: string; name?: string }) {
+function ChatBubbleUser({
+  content,
+  time,
+  avatar,
+  name,
+}: {
+  content: string;
+  time: string;
+  avatar?: string;
+  name?: string;
+}) {
   return (
     <div className="flex justify-end gap-3">
       <div className="max-w-[70%]">
@@ -37,16 +50,19 @@ function ChatBubbleUser({ content, time, avatar, name }: { content: string; time
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function ChatBubbleAssistant({
-  content, time, turn, onOptionClick,
+  content,
+  time,
+  turn,
+  onOptionClick,
 }: {
-  content: string
-  time: string
-  turn?: ChatTurn
-  onOptionClick: (opt: string) => void
+  content: string;
+  time: string;
+  turn?: ChatTurn;
+  onOptionClick: (opt: string) => void;
 }) {
   return (
     <div className="flex gap-3">
@@ -60,13 +76,16 @@ function ChatBubbleAssistant({
         <p className="text-[11px] text-[#6B7280] mt-1">{time}</p>
       </div>
     </div>
-  )
+  );
 }
 
-function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void) {
+function renderTurnContent(
+  turn: ChatTurn,
+  onOptionClick: (opt: string) => void,
+) {
   switch (turn.type) {
     case "answer":
-      return <p>{turn.text}</p>
+      return <p>{turn.text}</p>;
     case "question":
       return (
         <div>
@@ -83,7 +102,7 @@ function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void)
             ))}
           </div>
         </div>
-      )
+      );
     case "result":
       return (
         <div>
@@ -92,59 +111,97 @@ function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void)
           </p>
           <p className="mt-1">{turn.explanation}</p>
           {turn.specialist && (
-            <p className="mt-1 text-[#2F6FED] font-medium">Recommendation: {turn.specialist}</p>
+            <p className="mt-1 text-[#2F6FED] font-medium">
+              Recommendation: {turn.specialist}
+            </p>
           )}
         </div>
-      )
+      );
   }
 }
 
 interface ChatProps {
-  userName?: string
-  userAvatar?: string
+  userName?: string;
+  userAvatar?: string;
 }
 
 export default function Chat({ userName, userAvatar }: ChatProps) {
-  const [sessions, setSessions] = useState<ChatSession[]>([])
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [loadingMsgs, setLoadingMsgs] = useState(false)
-  const [tone, setTone] = useState("Clinical")
-  const [mapCollapsed, setMapCollapsed] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loadingMsgs, setLoadingMsgs] = useState(false);
+  const [tone, setTone] = useState("Clinical");
+  const [mapCollapsed, setMapCollapsed] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const messagesRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mapPanelRef = useRef<HTMLDivElement>(null);
   const [lastUrgency, setLastUrgency] = useState<{
-    urgency: "emergency" | "monitor" | "24h"
-    explanation: string
-  } | null>(null)
+    urgency: "emergency" | "monitor" | "24h";
+    explanation: string;
+  } | null>(null);
 
-  const [searchParams, setSearchParams] = useSearchParams()
-  const initialSent = useRef(false)
-
-  useEffect(() => {
-    loadSessions()
-  }, [])
+  const [sessionSidebarOpen, setSessionSidebarOpen] = useState(false);
+  const sessionSidebarRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
-
-  useEffect(() => {
-    const q = searchParams.get("q")
-    if (q && !initialSent.current) {
-      initialSent.current = true
-      setSearchParams({}, { replace: true })
-      handleNewChat(q)
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        sessionSidebarRef.current &&
+        !sessionSidebarRef.current.contains(e.target as Node)
+      ) {
+        setSessionSidebarOpen(false);
+      }
     }
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  const persona = "empathetic"
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSent = useRef(false);
+
+  useEffect(() => {
+    loadSessions();
+  }, []);
+
+  useEffect(() => {
+    if (
+      messages.length > 0 &&
+      messages[messages.length - 1].role === "assistant"
+    ) {
+      messagesRef.current?.scrollTo({
+        top: messagesRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (lastUrgency) {
+      mapPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [lastUrgency]);
+
+  useEffect(() => {
+    const q = searchParams.get("q");
+    if (q && !initialSent.current) {
+      initialSent.current = true;
+      setSearchParams({}, { replace: true });
+      handleNewChat(q);
+    }
+  }, []);
+
+  const persona = "empathetic";
 
   async function loadSessions() {
     try {
-      const s = await listSessions()
-      setSessions(s)
+      const s = await listSessions();
+      setSessions(s);
       if (s.length > 0 && !activeSessionId) {
         await selectSession(s[0].id)
       }
@@ -190,27 +247,29 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     } catch {
       setMessages([])
     } finally {
-      setLoadingMsgs(false)
+      setLoadingMsgs(false);
     }
+    inputRef.current?.focus({ preventScroll: true });
   }
 
   async function handleNewChat(initialMessage?: string) {
-    setActiveSessionId(null)
-    setMessages([])
-    setLastUrgency(null)
+    setActiveSessionId(null);
+    setMessages([]);
+    setLastUrgency(null);
+    inputRef.current?.focus({ preventScroll: true });
     if (initialMessage) {
-      await handleSend(initialMessage, true)
+      await handleSend(initialMessage, true);
     }
   }
 
   async function handleDelete(sessionId: string) {
     try {
-      await deleteSession(sessionId)
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId))
+      await deleteSession(sessionId);
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
       if (activeSessionId === sessionId) {
-        setActiveSessionId(null)
-        setMessages([])
-        setLastUrgency(null)
+        setActiveSessionId(null);
+        setMessages([]);
+        setLastUrgency(null);
       }
     } catch {
       // silent fail
@@ -218,47 +277,81 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   }
 
   async function handleSend(text: string, isInitial?: boolean) {
-    if (!text.trim() || loading) return
-    const ts = now()
-    setMessages((prev) => [...prev, { role: "user", content: text, timestamp: ts }])
-    setInput("")
-    setLoading(true)
+    if (!text.trim() || loading) return;
+    const ts = now();
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", content: text, timestamp: ts },
+    ]);
+    setInput("");
+    setLoading(true);
     try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-      const turn: ChatTurn = await sendChatMessage(text, history, persona, activeSessionId || undefined)
+      const history = messages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+      const turn: ChatTurn = await sendChatMessage(
+        text,
+        history,
+        persona,
+        activeSessionId || undefined,
+      );
       const content =
         turn.type === "answer"
           ? turn.text
           : turn.type === "question"
             ? turn.text
-            : turn.explanation
-      setMessages((prev) => [...prev, { role: "assistant", content, turn, timestamp: now() }])
+            : turn.explanation;
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content, turn, timestamp: now() },
+      ]);
       if (turn.type === "result") {
-        setLastUrgency({ urgency: turn.urgency, explanation: turn.explanation })
+        setLastUrgency({
+          urgency: turn.urgency,
+          explanation: turn.explanation,
+        });
       }
       if (!activeSessionId && !isInitial) {
-        await loadSessions()
+        await loadSessions();
       } else if (isInitial) {
-        await loadSessions()
+        await loadSessions();
       }
     } catch {
-      setMessages((prev) => [...prev, {
-        role: "assistant",
-        content: "Sorry, something went wrong. Please try again.",
-        timestamp: now(),
-      }])
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: "Sorry, something went wrong. Please try again.",
+          timestamp: now(),
+        },
+      ]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] bg-[#F5F7FB]">
-      {/* Session sidebar */}
-      <div className="w-[220px] shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col">
+    <div className="lg:flex h-[calc(100vh-4rem)] bg-[#F5F7FB] relative">
+      {/* Session sidebar — overlay on tablet, inline on desktop */}
+      {sessionSidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/30 lg:hidden"
+          onClick={() => setSessionSidebarOpen(false)}
+        />
+      )}
+      <div
+        ref={sessionSidebarRef}
+        className={`fixed top-16 left-0 md:left-16 z-30 w-[280px] h-[calc(100vh-4rem)] bg-white border-r border-[#E5E7EB] flex flex-col transition-transform duration-200 ease-in-out -translate-x-full lg:static lg:translate-x-0 lg:w-[220px] lg:shrink-0 lg:z-auto lg:h-auto ${
+          sessionSidebarOpen ? "translate-x-0" : ""
+        }`}
+      >
         <div className="p-3 border-b border-[#E5E7EB]">
           <button
-            onClick={() => handleNewChat()}
+            onClick={() => {
+              handleNewChat();
+              setSessionSidebarOpen(false);
+            }}
             className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -269,22 +362,32 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           {sessions.map((s) => (
             <div
               key={s.id}
-              onClick={() => selectSession(s.id)}
+              onClick={() => {
+                selectSession(s.id);
+                setSessionSidebarOpen(false);
+              }}
               className={`group flex items-center gap-2 px-3 py-2.5 cursor-pointer transition-colors ${
-                s.id === activeSessionId
-                  ? "bg-[#EAF1FE]"
-                  : "hover:bg-gray-50"
+                s.id === activeSessionId ? "bg-[#EAF1FE]" : "hover:bg-gray-50"
               }`}
             >
-              <MessageCircle className={`w-4 h-4 shrink-0 ${s.id === activeSessionId ? "text-[#2F6FED]" : "text-gray-400"}`} />
+              <MessageCircle
+                className={`w-4 h-4 shrink-0 ${s.id === activeSessionId ? "text-[#2F6FED]" : "text-gray-400"}`}
+              />
               <div className="flex-1 min-w-0">
-                <p className={`text-[13px] truncate ${s.id === activeSessionId ? "text-[#2F6FED] font-medium" : "text-[#111827]"}`}>
+                <p
+                  className={`text-[13px] truncate ${s.id === activeSessionId ? "text-[#2F6FED] font-medium" : "text-[#111827]"}`}
+                >
                   {s.title}
                 </p>
-                <p className="text-[10px] text-[#6B7280]">{formatDate(s.updated_at)}</p>
+                <p className="text-[10px] text-[#6B7280]">
+                  {formatDate(s.updated_at)}
+                </p>
               </div>
               <button
-                onClick={(e) => { e.stopPropagation(); handleDelete(s.id) }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(s.id);
+                }}
                 className="shrink-0 p-0.5 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                 aria-label="Delete session"
               >
@@ -298,8 +401,16 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
       {/* Main chat column */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Tone row */}
-        <div className="flex items-center justify-end px-6 py-3 bg-white border-b border-[#E5E7EB]">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between lg:justify-end px-6 py-3 bg-white border-b border-[#E5E7EB]">
+          <button
+            onClick={() => setSessionSidebarOpen(true)}
+            className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#2F6FED] hover:bg-[#EAF1FE] rounded-lg transition-colors cursor-pointer"
+            aria-label="Open sessions"
+          >
+            <MessageCircle className="w-4 h-4" />
+            Sessions
+          </button>
+          <div className="flex items-center gap-2 ml-auto">
             <label className="text-xs text-[#6B7280] font-medium">Tone:</label>
             <div className="relative">
               <select
@@ -317,7 +428,10 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        <div
+          ref={messagesRef}
+          className="lg:h-full h-[50vh] overflow-y-auto px-6 py-4 space-y-4"
+        >
           {loadingMsgs && (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
@@ -330,23 +444,31 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                   ? "No messages yet. Start a conversation!"
                   : "Describe your symptoms or ask a health question to start."}
                 <br />
-                I'll provide helpful health information and assess your condition.
+                I'll provide helpful health information and assess your
+                condition.
               </p>
             </div>
           )}
-          {!loadingMsgs && messages.map((msg, i) =>
-            msg.role === "user" ? (
-              <ChatBubbleUser key={i} content={msg.content} time={msg.timestamp} avatar={userAvatar} name={userName} />
-            ) : (
-              <ChatBubbleAssistant
-                key={i}
-                content={msg.content}
-                time={msg.timestamp}
-                turn={msg.turn}
-                onOptionClick={(opt) => handleSend(opt)}
-              />
-            ),
-          )}
+          {!loadingMsgs &&
+            messages.map((msg, i) =>
+              msg.role === "user" ? (
+                <ChatBubbleUser
+                  key={i}
+                  content={msg.content}
+                  time={msg.timestamp}
+                  avatar={userAvatar}
+                  name={userName}
+                />
+              ) : (
+                <ChatBubbleAssistant
+                  key={i}
+                  content={msg.content}
+                  time={msg.timestamp}
+                  turn={msg.turn}
+                  onOptionClick={(opt) => handleSend(opt)}
+                />
+              ),
+            )}
           {loading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full bg-[#2F6FED] flex items-center justify-center shrink-0">
@@ -364,6 +486,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         <div className="px-6 py-3 bg-white border-t border-[#E5E7EB]">
           <div className="flex gap-3 items-center">
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -382,13 +505,17 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
             </button>
           </div>
           <p className="text-[11px] text-[#6B7280] mt-2 text-center">
-            AI responses are for informational purposes only and not a substitute for professional medical advice.
+            AI responses are for informational purposes only and not a
+            substitute for professional medical advice.
           </p>
         </div>
       </div>
 
       {/* Right panel — MapMessage */}
-      <div className="w-[380px] xl:w-[420px] shrink-0 border-l border-[#E5E7EB] bg-white overflow-y-auto">
+      <div
+        ref={mapPanelRef}
+        className="lg:w-[380px] lg:xl:w-[420px] lg:shrink-0 border-l border-[#E5E7EB] bg-white overflow-y-auto"
+      >
         <MapMessage
           collapsed={mapCollapsed}
           onToggle={() => setMapCollapsed(!mapCollapsed)}
@@ -397,5 +524,5 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         />
       </div>
     </div>
-  )
+  );
 }

@@ -1,6 +1,15 @@
 from __future__ import annotations
 
-from app.config import settings
+import json
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+OSM_TAG_MAP = {
+    "hospital": "amenity=hospital",
+    "urgent_care": "amenity=clinic",
+    "clinic": "amenity=clinic",
+    "doctor": "amenity=doctors",
+}
 
 FACILITY_MAP = {
     "emergency": "hospital",
@@ -31,11 +40,41 @@ HARDCODED_FACILITIES = [
     {"name": "Klinik Sehat", "type": "doctor", "address": "Jl. Kemanggisan Raya No.15, Jakarta Barat", "lat": -6.1617, "lng": 106.7944, "phone": "(021) 5326688"},
 ]
 
+OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+
 
 def _resolve_type(urgency: str, specialist: str | None) -> str:
     if specialist and specialist in SPECIALIST_MAP:
         return SPECIALIST_MAP[specialist]
     return FACILITY_MAP.get(urgency, "doctor")
+
+
+def _query_overpass(osm_tag: str, lat: float, lng: float, radius: int = 5000) -> list[dict]:
+    key, val = osm_tag.split("=", 1)
+    query = f"""
+    [out:json][timeout:10];
+    (
+      node["{key}"="{val}"](around:{radius},{lat},{lng});
+      way["{key}"="{val}"](around:{radius},{lat},{lng});
+    );
+    out center 10;
+    """
+    url = f"{OVERPASS_URL}?{urlencode({'data': query})}"
+    req = Request(url, headers={"User-Agent": "PersonalHealthCompanion/1.0"})
+    resp = urlopen(req, timeout=10)
+    data = json.loads(resp.read())
+    results = []
+    for el in data.get("elements", []):
+        tags = el.get("tags", {})
+        results.append({
+            "name": tags.get("name", tags.get("operator", "Unknown")),
+            "type": osm_tag.split("=")[1],
+            "address": tags.get("addr:full", tags.get("display_name", "")),
+            "lat": el.get("lat") or el.get("center", {}).get("lat"),
+            "lng": el.get("lon") or el.get("center", {}).get("lon"),
+            "phone": tags.get("phone", ""),
+        })
+    return results
 
 
 def get_facilities(urgency: str, specialist: str | None = None) -> list[dict]:
@@ -47,7 +86,11 @@ def get_facilities(urgency: str, specialist: str | None = None) -> list[dict]:
 
 
 def search_places(urgency: str, specialist: str | None = None, lat: float | None = None, lng: float | None = None) -> list[dict]:
-    if not settings.maps_api_key or not lat or not lng:
-        return get_facilities(urgency, specialist)
     target = _resolve_type(urgency, specialist)
+    osm_tag = OSM_TAG_MAP.get(target)
+    if osm_tag and lat and lng:
+        try:
+            return _query_overpass(osm_tag, lat, lng)[:5]
+        except Exception:
+            pass
     return get_facilities(urgency, specialist)

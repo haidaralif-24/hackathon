@@ -8,3 +8,19 @@ export async function checkHealth(): Promise<{ status: string }> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
+
+import type { ChatTurn } from "../types";
+
+export async function sendChatMessage(
+  message: string,
+  history: { role: string; content: string }[],
+  persona = "straightforward",
+): Promise<ChatTurn> {
+  const res = await fetch(`${API_BASE}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, history, persona }),
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}

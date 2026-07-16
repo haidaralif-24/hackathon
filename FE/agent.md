@@ -4,7 +4,7 @@ You are an expert Frontend Engineer and UI/UX Designer specializing in building 
 
 ## Project Context
 
-- **Project Name:** Personal Health Companion
+- **Project Name:** Cek-In
 - **Core Concept:** A privacy-first, user-owned health companion. It processes documents synced from Google Drive and acts as an AI chat triage assistant.
 - **Goal:** Minimize user friction, maintain an extremely clean visual structure, and provide clear visual feedback to judges during live demos.
 
@@ -16,7 +16,7 @@ The application is a Single Page Application (SPA). The framework must remain pe
 
 ### Navbar Component Requirements:
 
-- **Left Alignment:** Display the Web Title (`Personal Health Companion`) clearly with a clean, medical-tech or professional font weight.
+- **Left Alignment:** Display the Web Title (`Cek-In`) clearly with a clean, medical-tech or professional font weight.
 - **Right Alignment:** Place an AI Chat Shortcut Icon (deep links to the Chat page) immediately followed by the User Profile Picture container.
 
 ### Sidebar Navigation Component Requirements:
@@ -65,6 +65,7 @@ The application is a Single Page Application (SPA). The framework must remain pe
 - **Loading States & Network Latency:** Always design components with skeleton placeholders or loading loaders. The backend uses server hosting which can trigger cold-starts; the UI must never look unresponsive or frozen while waiting for AI responses.
 - **Robust Mock Failbacks:** Hardcode local venue locations directly into the map view arrays immediately so the map component works securely even if API limits or regional venue Wi-Fi block maps during presentation.
 - **Clean Component Structure:** Keep CSS layout structures predictable using modern CSS Flexbox and CSS Grid patterns. Avoid heavy third-party animation engines that degrade render time on presentation setups.
+- **Icon Library:** Use `lucide-react` for all structural and interface symbols (e.g., dashboard shortcuts, timeline logs, and map pins) to maintain a clean, thin-line aesthetic.
 
 ---
 
@@ -87,6 +88,7 @@ src/
 │   └── files/              # Static demo/document files, templates, or mock PDFs
 │
 ├── src/
+|   |── api/ # functions for fetching server
 │   ├── components/         # Highly reusable design components
 │   │   ├── Navbar.tsx      # App header navigation component
 │   │   ├── Sidebar.tsx     # App side panel navigation component
@@ -110,3 +112,16 @@ src/
 ├── package.json
 └── tsconfig.json
 ```
+
+## 6. Design Tokens, Typography, & Color Theme
+
+Strictly follow these UI design tokens to keep the application visually cohesive:
+
+- **Typography:** Use UI-centric sans-serif fonts (`Inter` or `Plus Jakarta Sans`). Title weights should be bold (`font-bold`, `slate-900`), and body copies should be highly scannable (`text-slate-600`).
+- **Color Scheme (Blue Theme):**
+  - **Backgrounds:** Canvas uses crisp light slate (`bg-slate-50`). Sidebar uses deep technical slate (`bg-slate-900`).
+  - **Primary Actions:** Brand elements, primary buttons, and AI highlights use Medical Cyan-Blue (`bg-sky-500` or `text-sky-500`).
+  - **Triage Status Colors (Crucial for Map component):**
+    - Emergency state uses dynamic red warnings (`bg-red-50 text-red-700 border-red-200`).
+    - 24-Hour care uses amber warning tones (`bg-amber-50 text-amber-700 border-amber-200`).
+    - Routine monitoring uses standard deep blue notifications (`bg-blue-50 text-blue-700 border-blue-200`).

@@ -1,35 +1,28 @@
-import { useState } from 'react'
-import { checkHealth } from './api/client'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import Navbar from "./components/Navbar"
+import Sidebar from "./components/Sidebar"
+import Dashboard from "./pages/Dashboard"
+import Chat from "./pages/Chat"
+import HealthRecord from "./pages/HealthRecord"
+import Account from "./pages/Account"
 
-function App() {
-  const [beStatus, setBeStatus] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  async function testConnection() {
-    setLoading(true)
-    setBeStatus(null)
-    try {
-      const data = await checkHealth()
-      setBeStatus(`Connected — BE says "${data.status}"`)
-    } catch (e) {
-      setBeStatus(`Failed — ${(e as Error).message}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
+export default function App() {
   return (
-    <>
-      <section id="center">
-        <h1>Personal Health Companion</h1>
-        <button type="button" className="counter" onClick={testConnection} disabled={loading}>
-          {loading ? "Checking…" : "Test BE Connection"}
-        </button>
-        {beStatus && <p className={beStatus.startsWith("Connected") ? "status-ok" : "status-err"}>{beStatus}</p>}
-      </section>
-    </>
+    <BrowserRouter>
+      <div className="min-h-screen bg-gray-50">
+        <Sidebar />
+        <Navbar />
+        <div className="pl-60">
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/chat" element={<Chat />} />
+              <Route path="/health-record" element={<HealthRecord />} />
+              <Route path="/account" element={<Account />} />
+            </Routes>
+          </main>
+        </div>
+      </div>
+    </BrowserRouter>
   )
 }
-
-export default App

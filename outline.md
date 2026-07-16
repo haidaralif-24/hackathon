@@ -54,12 +54,18 @@ Model/provider choice is treated as swappable — NVIDIA NIM (OpenAI-compatible 
 - **Symptom-check mode:**
   1. Deterministic red-flag checklist runs first — hardcoded keywords/symptoms (chest pain, difficulty breathing, sudden severe headache, uncontrolled bleeding, stroke signs, loss of consciousness, etc.) → if matched, return `emergency` immediately, **skip the LLM entirely**. This is the concrete answer to "what if the AI is wrong."
   2. If no red flags: LLM asks one structured multiple-choice question at a time, capped at 3-4 rounds, using the last N records as context.
-  3. Final round outputs urgency level (`24h` / `monitor` / `emergency`) + plain-language explanation.
-  4. Urgency classification is explicitly biased toward over-escalation via the system prompt ("when uncertain between two urgency levels, choose the more urgent one").
+   3. Final round outputs urgency level (`24h` / `monitor` / `emergency`) + plain-language explanation + mapped specialist type (`"specialist": "cardiologist" | "dermatologist" | null`). Same pattern as urgency → facility type: a hardcoded lookup table, not an LLM decision.
+   4. Urgency classification is explicitly biased toward over-escalation via the system prompt ("when uncertain between two urgency levels, choose the more urgent one").
 
 ### Facility map
 - Google Maps Places API, filtered by facility type mapped from urgency (`emergency` → hospital/ER, `24h` → urgent care, `monitor` → GP/clinic).
 - Fallback: hardcode a facility list for the actual demo location and use it by default during judging — don't depend on live Places API in front of judges unless tested repeatedly at the venue.
+
+### Health literacy links
+- Static, hardcoded lookup table: `{category: [{title, url}]}`, keyed off the same urgency/specialist output as above — **LLM does not generate URLs live**, eliminating link-injection risk.
+- Categories mapped from urgency level (`emergency`, `24h`, `monitor`) and specialist type. Each returns 2-3 curated links from trusted sources (WHO, Mayo Clinic, Kemenkes, NHS, CDC).
+- Ties directly into the track's **"health literacy"** callout — every triage result or general-chat topic surfaces a "learn more" section with verified reading.
+- Curation: pick 5-8 sources now, verify links work before demo day. Hardcoded in a JSON file — no DB or API dependency.
 
 ### Chat persona (stretch feature)
 - A small fixed set of tone presets (e.g. "Straightforward," "Friendly & casual," "Detailed/clinical") selectable by the user — a dropdown/toggle in the chat UI, not open-ended custom text (avoids prompt-injection and scope creep).

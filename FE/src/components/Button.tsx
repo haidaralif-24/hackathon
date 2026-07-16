@@ -1,22 +1,22 @@
-import type { ReactNode, ButtonHTMLAttributes } from "react"
+import type { ReactNode, ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode
-  variant?: "primary" | "secondary" | "ghost"
-  border?: "full" | "normal" | "none"
+  children: ReactNode;
+  variant?: "primary" | "secondary" | "ghost";
+  border?: "full" | "normal" | "none";
 }
 
 const variantStyles: Record<string, string> = {
   primary: "bg-blue-500 text-white hover:bg-blue-600",
   secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
   ghost: "bg-transparent text-gray-700 hover:bg-gray-100",
-}
+};
 
 const borderStyles: Record<string, string> = {
   full: "rounded-full",
   normal: "rounded-lg",
   none: "",
-}
+};
 
 export default function Button({
   children,
@@ -32,5 +32,5 @@ export default function Button({
     >
       {children}
     </button>
-  )
+  );
 }

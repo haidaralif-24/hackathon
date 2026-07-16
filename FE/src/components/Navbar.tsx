@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
   "/": {
-    title: "Welcome back!",
+    title: "Welcome back",
     subtitle: "Report your symptoms or ask a health question.",
   },
   "/chat": {

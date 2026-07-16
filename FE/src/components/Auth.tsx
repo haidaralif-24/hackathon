@@ -1,6 +1,5 @@
 import { useState } from "react"
 import { supabase } from "../lib/supabase"
-import { Heart } from "lucide-react"
 
 type Mode = "signin" | "signup"
 
@@ -25,8 +24,8 @@ export default function Auth() {
           }}
         />
         <div className="relative z-10 text-center px-12 max-w-md">
-          <div className="w-16 h-16 rounded-xl bg-white flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Heart className="w-8 h-8 text-[#2F6FED] fill-[#2F6FED]" />
+          <div className="w-16 h-16 rounded-xl overflow-hidden mx-auto mb-6 shadow-lg">
+            <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-white leading-tight">
             Your Health,<br />Our Priority
@@ -42,8 +41,8 @@ export default function Auth() {
         <div className="w-full max-w-sm">
           {/* Logo */}
           <div className="flex items-center gap-2.5 mb-8 justify-center lg:justify-start">
-            <div className="w-10 h-10 rounded-lg bg-[#2F6FED] flex items-center justify-center shrink-0">
-              <Heart className="w-5 h-5 text-white fill-white" />
+            <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+              <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
             </div>
             <span className="text-lg font-bold tracking-tight">
             <span className="text-[#111827]">Ben</span>

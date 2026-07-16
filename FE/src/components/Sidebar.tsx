@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom"
-import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, Heart, BookHeart } from "lucide-react"
+import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, BookHeart } from "lucide-react"
 
 const links = [
   { to: "/", label: "Home", icon: LayoutDashboard },
@@ -29,9 +29,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         } md:w-16 lg:w-64`}
       >
         <div className="h-16 flex items-center justify-center md:justify-center lg:justify-start lg:gap-2.5 lg:px-5">
-          <div className="w-9 h-9 rounded-lg bg-[#2F6FED] flex items-center justify-center shrink-0">
-            <Heart className="w-5 h-5 text-white fill-white" />
-          </div>
+        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+          <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+        </div>
           <span className="hidden lg:inline text-base font-bold tracking-tight">
             <span className="text-[#111827]">Ben</span>
             <span className="text-[#2F6FED]">Healthy</span>

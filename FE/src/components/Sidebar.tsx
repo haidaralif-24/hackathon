@@ -1,12 +1,19 @@
-import { NavLink } from "react-router-dom"
-import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, Heart } from "lucide-react"
+import { NavLink } from "react-router-dom";
+import {
+  LayoutDashboard,
+  MessageCircle,
+  ClipboardList,
+  User,
+  ShieldPlus,
+  Heart,
+} from "lucide-react";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/chat", label: "Chat", icon: MessageCircle },
   { to: "/health-record", label: "Health Records", icon: ClipboardList },
   { to: "/account", label: "Account", icon: User },
-]
+];
 
 export default function Sidebar() {
   return (
@@ -53,12 +60,14 @@ export default function Sidebar() {
           <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
             <ShieldPlus className="w-5 h-5 text-white" />
           </div>
-          <h3 className="text-sm font-bold leading-tight">Your health, our priority.</h3>
+          <h3 className="text-sm font-bold leading-tight">
+            Your health, our priority.
+          </h3>
           <p className="text-xs text-white/70 mt-1 leading-relaxed">
             Smart tools for a healthier you.
           </p>
         </div>
       </div>
     </aside>
-  )
+  );
 }

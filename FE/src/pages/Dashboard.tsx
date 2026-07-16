@@ -18,6 +18,7 @@ export default function Dashboard({ userName }: { userName?: string }) {
   const navigate = useNavigate()
   const firstName = userName?.split(" ")[0] || "there"
   const [entries, setEntries] = useState<JournalEntry[]>([])
+  const [moodText, setMoodText] = useState("")
 
   useEffect(() => {
     listJournalEntries().then(setEntries).catch(() => {})
@@ -28,7 +29,8 @@ export default function Dashboard({ userName }: { userName?: string }) {
 
   async function handleMoodClick(mood: Mood) {
     try {
-      const saved = await saveJournalEntry(mood, "")
+      const saved = await saveJournalEntry(mood, moodText)
+      setMoodText("")
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))
         return [saved, ...filtered]
@@ -79,8 +81,14 @@ export default function Dashboard({ userName }: { userName?: string }) {
           ) : (
             <div>
               <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">How are you feeling?</p>
-              <p className="text-xs text-[#6B7280] mt-0.5">Tap to log your mood</p>
-              <div className="flex gap-2 mt-3 justify-center">
+              <textarea
+                value={moodText}
+                onChange={(e) => setMoodText(e.target.value)}
+                placeholder="Write something..."
+                rows={2}
+                className="mt-2 w-full px-3 py-2 text-xs border border-[#E5E7EB] rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent resize-none"
+              />
+              <div className="flex gap-2 mt-2 justify-center">
                 {MOODS.map((m) => (
                   <button
                     key={m.value}

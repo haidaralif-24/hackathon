@@ -57,7 +57,7 @@ def run_triage(
     history: list[dict] | None = None,
     persona: str = "straightforward",
 ) -> AnswerTurn | QuestionTurn | ResultTurn:
-    tone = PERSONA_MAP.get(persona, PERSONA_MAP["straightforward"])
+    tone = PERSONA_MAP.get(persona, persona)
     system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", tone)
     raw = chat_completion(
         system=system_prompt,

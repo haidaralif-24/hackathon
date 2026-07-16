@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { sendChatMessage } from "../api/client";
 import type { ChatTurn, Message } from "../types";
-import { Send, Loader2, HeartPulse, ChevronDown } from "lucide-react";
+import { Send, Loader2, HeartPulse, ChevronDown, Plus, MessageCircle, X } from "lucide-react";
 import MapMessage from "../components/MapMessage";
 
 function now(): string {
@@ -302,90 +302,25 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                 className="w-10 h-10 bg-[#2F6FED] text-white rounded-full flex items-center justify-center hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
                 aria-label="Send message"
               >
-                <option>Clinical</option>
-                <option>Empathetic</option>
-                <option>Straightforward</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+                <Send className="w-4 h-4" />
+              </button>
+              <div className="relative">
+                <select
+                  value={tone}
+                  onChange={(e) => setTone(e.target.value)}
+                  className="appearance-none px-3 py-2 text-xs border border-[#E5E7EB] rounded-lg bg-white text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
+                >
+                  <option>Clinical</option>
+                  <option>Empathetic</option>
+                  <option>Straightforward</option>
+                </select>
+                <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              </div>
             </div>
-<<<<<<< HEAD
-=======
             <p className="text-[11px] text-[#6B7280] mt-2 text-center">
-              AI responses are for informational purposes only and not a
-              substitute for professional medical advice.
+              AI responses are for informational purposes only and not a substitute for professional medical advice.
             </p>
->>>>>>> 57c62d8 (Implement Chat page per DESIGN.md: tab toggle, two-column layout, styled bubbles, MapMessage panel, updated Navbar/Sidebar/App)
           </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-          {loadingMsgs && (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
-            </div>
-          )}
-          {!loadingMsgs && messages.length === 0 && (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-sm text-[#6B7280] text-center max-w-md">
-                {activeSessionId
-                  ? "No messages yet. Start a conversation!"
-                  : "Describe your symptoms or ask a health question to start."}
-                <br />
-                I'll provide helpful health information and assess your condition.
-              </p>
-            </div>
-          )}
-          {!loadingMsgs && messages.map((msg, i) =>
-            msg.role === "user" ? (
-              <ChatBubbleUser key={i} content={msg.content} time={msg.timestamp} avatar={userAvatar} name={userName} />
-            ) : (
-              <ChatBubbleAssistant
-                key={i}
-                content={msg.content}
-                time={msg.timestamp}
-                turn={msg.turn}
-                onOptionClick={(opt) => handleSend(opt)}
-              />
-            ),
-          )}
-          {loading && (
-            <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#2F6FED] flex items-center justify-center shrink-0">
-                <HeartPulse className="w-4 h-4 text-white" />
-              </div>
-              <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
-                <Loader2 className="w-4 h-4 animate-spin text-[#2F6FED]" />
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Input bar */}
-        <div className="px-6 py-3 bg-white border-t border-[#E5E7EB]">
-          <div className="flex gap-3 items-center">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
-              placeholder="Type your message..."
-              className="flex-1 px-4 py-2.5 text-sm border border-[#E5E7EB] rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
-              disabled={loading}
-            />
-            <button
-              onClick={() => handleSend(input)}
-              disabled={loading || !input.trim()}
-              className="w-10 h-10 bg-[#2F6FED] text-white rounded-full flex items-center justify-center hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
-              aria-label="Send message"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
-          <p className="text-[11px] text-[#6B7280] mt-2 text-center">
-            AI responses are for informational purposes only and not a substitute for professional medical advice.
-          </p>
         </div>
       </div>
 

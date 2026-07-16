@@ -25,27 +25,9 @@ function AppLayout({ session }: { session: Session }) {
         <div className="pl-60">
           <main className="flex-1">
             <Routes>
-<<<<<<< HEAD
               <Route path="/" element={<Dashboard userName={session.user.user_metadata?.full_name} />} />
               <Route path="/chat" element={<Chat userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} />} />
               <Route path="/journal" element={<Journal />} />
-=======
-              <Route
-                path="/"
-                element={
-                  <Dashboard userName={session.user.user_metadata?.full_name} />
-                }
-              />
-              <Route
-                path="/chat"
-                element={
-                  <Chat
-                    userName={session.user.user_metadata?.full_name}
-                    userAvatar={session.user.user_metadata?.avatar_url}
-                  />
-                }
-              />
->>>>>>> 57c62d8 (Implement Chat page per DESIGN.md: tab toggle, two-column layout, styled bubbles, MapMessage panel, updated Navbar/Sidebar/App)
               <Route path="/health-record" element={<HealthRecord />} />
               <Route path="/account" element={<Account userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} email={session.user.email!} onSignOut={() => supabase.auth.signOut()} />} />
             </Routes>

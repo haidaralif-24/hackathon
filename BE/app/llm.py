@@ -58,6 +58,35 @@ def structure_ocr(ocr_text: str) -> ExtractedRecord:
     return ExtractedRecord.model_validate_json(raw)
 
 
+VLM_SYSTEM = (
+    "You are a health literacy assistant. "
+    "Describe visible characteristics of the image in plain language — "
+    "color, size, shape, texture, location on body (if identifiable). "
+    "Do not diagnose. Do not suggest treatments. "
+    'End with: "This description is not a medical diagnosis. Consult a healthcare provider."'
+)
+
+
+def analyze_image(image_bytes: bytes, prompt: str = "Describe what you see in this image.") -> str:
+    b64 = base64.b64encode(image_bytes).decode()
+    data_uri = f"data:image/png;base64,{b64}"
+
+    resp = client.chat.completions.create(
+        model="meta/llama-4-maverick",
+        messages=[
+            {"role": "system", "content": VLM_SYSTEM},
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": data_uri}},
+                ],
+            },
+        ],
+    )
+    return resp.choices[0].message.content or ""
+
+
 def chat_completion(
     system: str,
     user: str,

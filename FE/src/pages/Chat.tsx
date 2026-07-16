@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { sendChatMessage } from "../api/client";
 import type { ChatTurn, Message } from "../types";
 import {
@@ -129,6 +130,8 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   const [tone, setTone] = useState("Clinical");
   const [mapCollapsed, setMapCollapsed] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const location = useLocation();
   const [lastUrgency, setLastUrgency] = useState<{
     urgency: "emergency" | "monitor" | "24h";
     explanation: string;
@@ -137,6 +140,12 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  useEffect(() => {
+    if (location.state?.focus) {
+      inputRef.current?.focus();
+    }
+  }, [location.state?.focus]);
 
   const persona = mode === "triage" ? "straightforward" : "empathetic";
 
@@ -277,6 +286,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           <div className="px-6 py-3 bg-white border-t border-[#E5E7EB]">
             <div className="flex gap-3 items-center">
               <input
+                ref={inputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

@@ -3,7 +3,6 @@ import { useSearchParams } from "react-router-dom";
 import {
   sendChatMessage,
   listSessions,
-  createSession,
   deleteSession,
   getSessionMessages,
 } from "../api/client";

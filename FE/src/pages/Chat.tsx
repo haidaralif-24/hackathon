@@ -160,11 +160,33 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     setLoadingMsgs(true)
     try {
       const msgs = await getSessionMessages(id)
-      setMessages(msgs.map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-        timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      })))
+      let foundUrgency: typeof lastUrgency = null
+      const loaded = msgs.map((m) => {
+        let turn: ChatTurn | undefined
+        let content = m.content
+        if (m.role === "assistant") {
+          try {
+            const parsed = JSON.parse(m.content)
+            if (parsed.type) {
+              turn = parsed as ChatTurn
+              content = turn.type === "answer" ? turn.text
+                : turn.type === "question" ? turn.text
+                : turn.explanation
+              if (turn.type === "result") {
+                foundUrgency = { urgency: turn.urgency, explanation: turn.explanation }
+              }
+            }
+          } catch {}
+        }
+        return {
+          role: m.role as "user" | "assistant",
+          content,
+          turn,
+          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        }
+      })
+      setMessages(loaded)
+      setLastUrgency(foundUrgency)
     } catch {
       setMessages([])
     } finally {

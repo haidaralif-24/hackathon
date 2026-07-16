@@ -56,12 +56,7 @@ def chat(req: ChatRequest) -> ChatTurn:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat error: {e}")
 
-    content = (
-        turn.text if hasattr(turn, "text")
-        else turn.explanation if hasattr(turn, "explanation")
-        else ""
-    )
-
+    content = turn.model_dump_json()
     supabase.table("chat_messages").insert({
         "session_id": session_id,
         "role": "assistant",

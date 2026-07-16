@@ -1,3 +1,14 @@
+.status-ok {
+  color: #22c55e;
+  font-weight: 600;
+  margin-top: 8px;
+}
+.status-err {
+  color: #ef4444;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;

@@ -2,10 +2,25 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
+import { checkHealth } from './api/client'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [beStatus, setBeStatus] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function testConnection() {
+    setLoading(true)
+    setBeStatus(null)
+    try {
+      const data = await checkHealth()
+      setBeStatus(`Connected — BE says "${data.status}"`)
+    } catch (e) {
+      setBeStatus(`Failed — ${(e as Error).message}`)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -21,13 +36,10 @@ function App() {
             Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
+        <button type="button" className="counter" onClick={testConnection} disabled={loading}>
+          {loading ? "Checking…" : "Test BE Connection"}
         </button>
+        {beStatus && <p className={beStatus.startsWith("Connected") ? "status-ok" : "status-err"}>{beStatus}</p>}
       </section>
 
       <div className="ticks"></div>

@@ -1,8 +1,8 @@
-import { LogOut, MessageCircle } from "lucide-react"
+import { LogOut, MessageCircle } from "lucide-react";
 
 interface NavbarProps {
-  email: string
-  onSignOut: () => void
+  email: string;
+  onSignOut: () => void;
 }
 
 export default function Navbar({ email, onSignOut }: NavbarProps) {
@@ -21,10 +21,14 @@ export default function Navbar({ email, onSignOut }: NavbarProps) {
         <div className="w-9 h-9 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center text-sm font-medium text-gray-600">
           {email.charAt(0).toUpperCase()}
         </div>
-        <button onClick={onSignOut} className="text-gray-400 hover:text-red-500 transition-colors" aria-label="Sign out">
+        <button
+          onClick={onSignOut}
+          className="text-gray-400 hover:text-red-500 transition-colors"
+          aria-label="Sign out"
+        >
           <LogOut className="w-4 h-4" />
         </button>
       </div>
     </nav>
-  )
+  );
 }

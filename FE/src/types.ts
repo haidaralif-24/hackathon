@@ -22,4 +22,5 @@ export interface Message {
   role: "user" | "assistant"
   content: string
   turn?: ChatTurn
+  timestamp: string
 }

@@ -33,8 +33,8 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <Heart className="w-5 h-5 text-white fill-white" />
           </div>
           <span className="hidden lg:inline text-base font-bold tracking-tight">
-            <span className="text-[#111827]">Health</span>
-            <span className="text-[#2F6FED]">Companion</span>
+            <span className="text-[#111827]">Ben</span>
+            <span className="text-[#2F6FED]">Healthy</span>
           </span>
         </div>
 

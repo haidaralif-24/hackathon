@@ -46,8 +46,8 @@ export default function Auth() {
               <Heart className="w-5 h-5 text-white fill-white" />
             </div>
             <span className="text-lg font-bold tracking-tight">
-              <span className="text-[#111827]">Health</span>
-              <span className="text-[#2F6FED]">Companion</span>
+            <span className="text-[#111827]">Ben</span>
+            <span className="text-[#2F6FED]">Healthy</span>
             </span>
           </div>
 
@@ -87,7 +87,7 @@ export default function Auth() {
               <>
                 <h2 className="text-2xl font-bold text-[#111827]">Create your account</h2>
                 <p className="text-sm text-[#6B7280] mt-1.5">
-                  Join HealthCompanion to track your health records and get AI-powered insights.
+                  Join Ben Healthy to track your health records and get AI-powered insights.
                 </p>
               </>
             )}

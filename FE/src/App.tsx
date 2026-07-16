@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard"
 import Chat from "./pages/Chat"
 import HealthRecord from "./pages/HealthRecord"
 import Account from "./pages/Account"
+import Journal from "./pages/Journal"
 
 function AppLayout({ session }: { session: Session }) {
   return (
@@ -26,6 +27,7 @@ function AppLayout({ session }: { session: Session }) {
             <Routes>
               <Route path="/" element={<Dashboard userName={session.user.user_metadata?.full_name} />} />
               <Route path="/chat" element={<Chat userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} />} />
+              <Route path="/journal" element={<Journal />} />
               <Route path="/health-record" element={<HealthRecord />} />
               <Route path="/account" element={<Account userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} email={session.user.email!} onSignOut={() => supabase.auth.signOut()} />} />
             </Routes>

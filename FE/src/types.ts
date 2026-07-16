@@ -24,3 +24,19 @@ export interface Message {
   turn?: ChatTurn
   timestamp: string
 }
+
+export interface ChatSession {
+  id: string
+  title: string
+  created_at: string
+  updated_at: string
+}
+
+export type Mood = "great" | "good" | "okay" | "bad" | "terrible"
+
+export interface JournalEntry {
+  id: string
+  mood: Mood
+  content: string
+  created_at: string
+}

@@ -65,13 +65,55 @@ def parse_turn(data: dict) -> AnswerTurn | QuestionTurn | ResultTurn:
     raise ValueError(f"Unknown turn type: {t}")
 
 
+def build_health_context(supabase) -> str:
+    try:
+        resp = supabase.table("records").select("extracted_json").order("created_at", desc=True).limit(10).execute()
+        records = resp.data or []
+        if not records:
+            return ""
+
+        medications: list[str] = []
+        conditions: list[str] = []
+        lab_flags: list[str] = []
+
+        for r in records:
+            data = r.get("extracted_json") or {}
+            for med in data.get("medications", []):
+                med_str = f"{med.get('name','')} {med.get('dosage','')} {med.get('frequency','')}".strip()
+                if med_str and med_str not in medications:
+                    medications.append(med_str)
+            for lab in data.get("lab_values", []):
+                if lab.get("flag") and lab.get("flag") != "normal":
+                    lab_flags.append(f"{lab.get('name','')}: {lab.get('value','')}{lab.get('unit','')} ({lab.get('flag')})")
+            if data.get("notes") and data["notes"] not in conditions:
+                conditions.append(data["notes"])
+
+        parts: list[str] = []
+        if medications:
+            parts.append("Medications: " + ", ".join(medications))
+        if conditions:
+            parts.append("Conditions/Notes: " + ", ".join(conditions))
+        if lab_flags:
+            parts.append("Lab Results: " + ", ".join(lab_flags))
+
+        if not parts:
+            return ""
+
+        return "\n\nUser Health Record Summary (from uploaded documents):\n" + "\n".join(parts) + "\n\nUse this context to personalize your response. Do NOT fabricate additional medical history."
+    except Exception:
+        return ""
+
+
 def run_triage(
     message: str,
     history: list[dict] | None = None,
     persona: str = "straightforward",
+    health_context: str = "",
 ) -> AnswerTurn | QuestionTurn | ResultTurn:
     tone = PERSONA_MAP.get(persona, persona)
     system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", tone) + "\n\n" + SOURCES
+    if health_context:
+        system_prompt += "\n\n" + health_context
     raw = chat_completion(
         system=system_prompt,
         user=message,

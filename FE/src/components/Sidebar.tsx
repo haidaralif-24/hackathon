@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom"
-import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, Heart } from "lucide-react"
+import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, Heart, BookHeart } from "lucide-react"
 
 const links = [
   { to: "/", label: "Home", icon: LayoutDashboard },
   { to: "/chat", label: "Chat", icon: MessageCircle },
+  { to: "/journal", label: "Journal", icon: BookHeart },
   { to: "/health-record", label: "Health Records", icon: ClipboardList },
   { to: "/account", label: "Account", icon: User },
 ]

@@ -4,6 +4,7 @@ import { MessageCircle, ChevronDown } from "lucide-react"
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
   "/": { title: "Welcome!", subtitle: "Here's what you can do today." },
   "/chat": { title: "AI Chat Assistant", subtitle: "Get answers. Understand your health. Find care." },
+  "/journal": { title: "Journal", subtitle: "Track your mood and reflect on your day." },
   "/health-record": { title: "Health Record", subtitle: "Your synced files and extracted health history." },
   "/account": { title: "Account", subtitle: "Manage your profile and settings." },
 }

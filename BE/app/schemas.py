@@ -45,6 +45,30 @@ class ChatRequest(BaseModel):
     message: str
     history: list[dict] = []
     persona: str = "straightforward"
+    session_id: Optional[str] = None
+
+
+class ChatSessionOut(BaseModel):
+    id: str
+    title: str
+    created_at: str
+    updated_at: str
+
+
+class ChatSessionCreate(BaseModel):
+    title: Optional[str] = "New Chat"
+
+
+class ChatSessionUpdate(BaseModel):
+    title: str
+
+
+class ChatMessageOut(BaseModel):
+    id: str
+    session_id: str
+    role: str
+    content: str
+    created_at: str
 
 
 class SyncFile(BaseModel):

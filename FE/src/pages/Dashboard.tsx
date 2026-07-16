@@ -1,12 +1,42 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { MessageCircle } from "lucide-react"
 import Button from "../components/Button"
+import { listJournalEntries, saveJournalEntry } from "../api/client"
+import type { JournalEntry, Mood } from "../types"
+
+const MOODS: { value: Mood; emoji: string; label: string }[] = [
+  { value: "great", emoji: "😁", label: "Great" },
+  { value: "good", emoji: "😊", label: "Good" },
+  { value: "okay", emoji: "😐", label: "Okay" },
+  { value: "bad", emoji: "😔", label: "Bad" },
+  { value: "terrible", emoji: "😢", label: "Terrible" },
+]
 
 export default function Dashboard({ userName }: { userName?: string }) {
   const [input, setInput] = useState("")
   const navigate = useNavigate()
   const firstName = userName?.split(" ")[0] || "there"
+  const [entries, setEntries] = useState<JournalEntry[]>([])
+
+  useEffect(() => {
+    listJournalEntries().then(setEntries).catch(() => {})
+  }, [])
+
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
+
+  async function handleMoodClick(mood: Mood) {
+    try {
+      const saved = await saveJournalEntry(mood, "")
+      setEntries((prev) => {
+        const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))
+        return [saved, ...filtered]
+      })
+    } catch {
+      // silent
+    }
+  }
 
   const handleSubmit = (text: string) => {
     if (!text.trim()) return
@@ -14,7 +44,7 @@ export default function Dashboard({ userName }: { userName?: string }) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] px-6">
       <h1 className="text-5xl font-bold text-gray-900">Welcome, {firstName}!</h1>
       <p className="text-gray-500 text-lg mt-4">
         You feel unwell today? Let me know! I'll analyse your symptoms
@@ -32,19 +62,49 @@ export default function Dashboard({ userName }: { userName?: string }) {
         />
       </div>
 
-      <div className="mt-8 w-full max-w-2xl bg-white p-6 rounded-2xl shadow-md flex gap-4 justify-between items-center">
-        <div>
-          <span className="text-lg font-semibold text-gray-900">
-            Synchronize Record!
-          </span>
-          <p className="text-gray-500 text-lg mt-4">
-            Let me know your record for more relevant analysis.
-          </p>
+      <div className="mt-6 w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Mood widget */}
+        <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
+          {todayEntry ? (
+            <div>
+              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">Today's Mood</p>
+              <div className="flex items-center gap-3 mt-2">
+                <span className="text-3xl">{MOODS.find((m) => m.value === todayEntry.mood)?.emoji}</span>
+                <div>
+                  <p className="text-sm font-semibold text-[#111827]">{MOODS.find((m) => m.value === todayEntry.mood)?.label}</p>
+                  {todayEntry.content && <p className="text-xs text-[#6B7280] line-clamp-1">{todayEntry.content}</p>}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">How are you feeling?</p>
+              <p className="text-xs text-[#6B7280] mt-0.5">Tap to log your mood</p>
+              <div className="flex gap-2 mt-3 justify-center">
+                {MOODS.map((m) => (
+                  <button
+                    key={m.value}
+                    onClick={() => handleMoodClick(m.value)}
+                    className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-lg"
+                    aria-label={m.label}
+                  >
+                    {m.emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-        <Button className="ml-auto" border="full">
-          Sync Now
-        </Button>
+
+        {/* Sync card */}
+        <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
+          <span className="text-sm font-semibold text-gray-900">Synchronize Record!</span>
+          <p className="text-xs text-gray-500 mt-1">Let me know your record for more relevant analysis.</p>
+          <Button className="mt-3" border="full">
+            Sync Now
+          </Button>
+        </div>
       </div>
     </div>
-  );
+  )
 }

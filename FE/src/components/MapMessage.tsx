@@ -161,39 +161,37 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
             </div>
           </div>
 
-          <div className="flex gap-4">
-            <div className="flex-1 min-w-0 space-y-3">
-              {facilities.length === 0 && (
-                <p className="text-xs text-gray-400">No facilities found for this urgency level.</p>
-              )}
-              {facilities.map((f, i) => (
-                <div key={i} className="flex gap-2.5">
-                  <div className="w-6 h-6 rounded-full bg-[#2F6FED] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    {i + 1}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-[#2F6FED] truncate">{f.name}</p>
-                    <p className="text-[11px] text-[#6B7280]">{f.type}</p>
-                    <p className="text-[11px] text-[#6B7280] truncate">{f.address}</p>
-                    {f.phone && <p className="text-[11px] text-[#6B7280]">{f.phone}</p>}
-                    <a
-                      href={`https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lng}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block mt-1 text-[11px] font-medium text-[#2F6FED] hover:underline"
-                    >
-                      Directions
-                    </a>
-                  </div>
+          <div className="space-y-3">
+            {facilities.length === 0 && (
+              <p className="text-xs text-gray-400">No facilities found for this urgency level.</p>
+            )}
+            {facilities.map((f, i) => (
+              <div key={i} className="flex gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-[#2F6FED] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  {i + 1}
                 </div>
-              ))}
-            </div>
-
-            <div
-              ref={mapRef}
-              className="w-44 shrink-0 rounded-xl h-52 overflow-hidden border border-gray-200 z-0"
-            />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[#2F6FED] truncate">{f.name}</p>
+                  <p className="text-[11px] text-[#6B7280]">{f.type}</p>
+                  <p className="text-[11px] text-[#6B7280] truncate">{f.address}</p>
+                  {f.phone && <p className="text-[11px] text-[#6B7280]">{f.phone}</p>}
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-1 text-[11px] font-medium text-[#2F6FED] hover:underline"
+                  >
+                    Directions
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
+
+          <div
+            ref={mapRef}
+            className="w-full rounded-xl h-64 overflow-hidden border border-gray-200 z-0"
+          />
         </div>
       )}
     </div>

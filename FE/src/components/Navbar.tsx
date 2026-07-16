@@ -1,4 +1,4 @@
-import { LogOut, MessageCircle, ChevronDown } from "lucide-react";
+import { LogOut, MessageCircle, ChevronDown, Menu } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
@@ -30,6 +30,7 @@ interface NavbarProps {
   onSignOut: () => void;
   userName?: string;
   userAvatar?: string;
+  onToggleSidebar: () => void;
 }
 
 export default function Navbar({
@@ -37,6 +38,7 @@ export default function Navbar({
   email,
   userName,
   userAvatar,
+  onToggleSidebar,
 }: NavbarProps) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -59,8 +61,15 @@ export default function Navbar({
 
   return (
     <nav className="sticky top-0 z-30 w-full bg-white/80 backdrop-blur-sm border-b border-[#E5E7EB] h-16">
-      <div className="flex items-center justify-between h-full pe-6 ps-70">
-        <div>
+      <div className="flex items-center justify-between h-full px-4 md:ps-20 lg:ps-70">
+        <button
+          onClick={onToggleSidebar}
+          className="md:hidden text-gray-500 hover:text-gray-700 mr-3 cursor-pointer"
+          aria-label="Toggle sidebar"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="flex-1 lg:flex-none">
           <h1 className="text-xl font-bold text-[#111827]">
             {meta.title}
             {location.pathname == "/" && `, ${userName}!`}
@@ -93,11 +102,11 @@ export default function Navbar({
                   </div>
                 )}
               </div>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="hidden md:inline text-sm font-medium text-gray-700">
                 {userName || email}
               </span>
               <ChevronDown
-                className={`w-3.5 h-3.5 text-gray-400 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                className={`hidden lg:block w-3.5 h-3.5 text-gray-400 transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
               />
             </button>
 

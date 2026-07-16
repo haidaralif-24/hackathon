@@ -47,6 +47,11 @@ class ChatRequest(BaseModel):
     persona: str = "straightforward"
 
 
+class SyncFile(BaseModel):
+    filename: str
+    source: str = "upload"
+
+
 class AnswerTurn(BaseModel):
     type: Literal["answer"] = "answer"
     text: str

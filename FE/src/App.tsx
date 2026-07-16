@@ -28,7 +28,7 @@ function AppLayout({ session }: { session: Session }) {
               <Route path="/" element={<Dashboard userName={session.user.user_metadata?.full_name} />} />
               <Route path="/chat" element={<Chat userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} />} />
               <Route path="/journal" element={<Journal />} />
-              <Route path="/health-record" element={<HealthRecord />} />
+              <Route path="/health-record" element={<HealthRecord providerToken={session.provider_token} />} />
               <Route path="/account" element={<Account userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} email={session.user.email!} onSignOut={() => supabase.auth.signOut()} />} />
             </Routes>
           </main>

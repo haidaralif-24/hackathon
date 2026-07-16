@@ -1,5 +1,9 @@
-import { useState } from "react"
-import { RefreshCw, CheckCircle, MoreVertical, FlaskRound, Pill, HeartPulse, ChevronDown } from "lucide-react"
+import { useState, useEffect } from "react"
+import { RefreshCw, CheckCircle, FolderOpen, MoreVertical, FlaskRound, Pill, HeartPulse, ChevronDown, Loader2 } from "lucide-react"
+import { runSync } from "../api/client"
+import DrivePicker from "../components/DrivePicker"
+
+const STORAGE_KEY = "cek-in_drive_folder"
 
 type EntryTag = "Lab Result" | "Prescription" | "Vital Signs"
 
@@ -57,8 +61,35 @@ const mockEntries: Entry[] = [
   },
 ]
 
-export default function HealthRecord() {
-  const [syncStatus] = useState("Last synced: May 12, 2026 at 10:30 AM")
+export default function HealthRecord({ providerToken }: { providerToken?: string | null }) {
+  const [syncing, setSyncing] = useState(false)
+  const [syncStatus, setSyncStatus] = useState("Last synced: —")
+  const [folderId, setFolderId] = useState(() => localStorage.getItem(STORAGE_KEY))
+  const [folderName, setFolderName] = useState(() => localStorage.getItem(`${STORAGE_KEY}_name`))
+
+  useEffect(() => {
+    if (folderId) localStorage.setItem(STORAGE_KEY, folderId)
+    else localStorage.removeItem(STORAGE_KEY)
+  }, [folderId])
+
+  useEffect(() => {
+    if (folderName) localStorage.setItem(`${STORAGE_KEY}_name`, folderName)
+    else localStorage.removeItem(`${STORAGE_KEY}_name`)
+  }, [folderName])
+
+  async function handleSync() {
+    setSyncing(true)
+    try {
+      const provider_token = providerToken || undefined
+      const result = await runSync(provider_token, folderId || undefined)
+      const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
+      setSyncStatus(`Last synced: ${now} (${result.synced} new file${result.synced !== 1 ? "s" : ""})`)
+    } catch {
+      setSyncStatus("Sync failed")
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
@@ -66,22 +97,54 @@ export default function HealthRecord() {
       <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-[#111827]">Storage Sync (Manual)</span>
-          <div className="relative">
-            <select className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer">
-              <option>Mock Upload Folder</option>
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-          </div>
-          <button className="flex items-center gap-2 bg-[#2F6FED] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#1E4FBE] transition-colors cursor-pointer">
-            <RefreshCw className="w-4 h-4" />
-            Run Manual Drive Sync
-          </button>
+          {folderId ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-3 py-1.5">
+                <FolderOpen className="w-4 h-4 text-[#2F6FED]" />
+                <span className="text-sm font-medium text-[#111827]">{folderName || "Selected folder"}</span>
+              </div>
+              <button
+                onClick={() => { setFolderId(null); setFolderName(null) }}
+                className="text-xs font-medium text-[#6B7280] hover:text-[#2F6FED] transition-colors"
+              >
+                Change
+              </button>
+            </div>
+          ) : (
+            <p className="text-sm text-[#6B7280]">No folder selected</p>
+
+          )}
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <CheckCircle className="w-4 h-4 text-[#16A34A]" />
-          <span className="text-[#6B7280]">{syncStatus}</span>
+        <div className="flex items-center gap-3">
+          {folderId && (
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 bg-[#2F6FED] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
+              {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              {syncing ? "Syncing..." : "Sync Now"}
+            </button>
+          )}
+          <div className="flex items-center gap-2 text-sm">
+            <CheckCircle className="w-4 h-4 text-[#16A34A]" />
+            <span className="text-[#6B7280]">{syncStatus}</span>
+          </div>
         </div>
       </div>
+
+      {/* Folder picker when no folder */}
+      {!folderId && (
+        <div className="bg-white rounded-2xl border border-[#E5E7EB] p-8 flex flex-col items-center gap-3 shadow-sm">
+          <FolderOpen className="w-10 h-10 text-[#2F6FED]" />
+          <p className="text-sm font-medium text-[#111827]">Choose a Google Drive folder to sync</p>
+          <p className="text-xs text-[#6B7280] text-center max-w-md">
+            Paste a Google Drive folder link or ID below. Health documents in that folder
+            (lab results, prescriptions, medical notes) will be synced and analyzed.
+          </p>
+          <DrivePicker onFolderSelected={(id, name) => { setFolderId(id); setFolderName(name) }} />
+        </div>
+      )}
 
       {/* Timeline Section Header */}
       <div className="flex items-center justify-between">
@@ -103,7 +166,6 @@ export default function HealthRecord() {
           const { bg, text, icon: Icon } = tagStyles[entry.type]
           return (
             <div key={entry.id} className="flex gap-4">
-              {/* Timeline node + line */}
               <div className="flex flex-col items-center">
                 <div className={`w-9 h-9 rounded-full ${bg} flex items-center justify-center shrink-0`}>
                   <Icon className={`w-4 h-4 ${text}`} />
@@ -113,7 +175,6 @@ export default function HealthRecord() {
                 )}
               </div>
 
-              {/* Date + Card */}
               <div className="flex-1 min-w-0 pb-6">
                 <p className="text-xs text-[#6B7280] mb-1">
                   {entry.date} — {entry.time}

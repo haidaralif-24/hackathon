@@ -66,6 +66,7 @@ Keep every LLM-facing endpoint returning **validated, schema-checked JSON only**
    {"type": "result", "urgency": "24h | monitor | emergency", "explanation": str, "specialist": str | null}
    ```
    `specialist` is a hardcoded lookup from urgency level (e.g. `emergency` → `"emergency_room"`, `monitor` + symptom pattern → `"dermatologist"` / `"cardiologist"` / `null`) — same pattern as urgency → facility type in Phase 5, not an LLM decision.
+   `explanation` must cite sources inline (e.g. `"per WHO guidelines"`, `"(source: CDC)"`). A curated list of trusted sources (WHO, CDC, Mayo Clinic, NHS, Kemenkes, IDI) is baked into the system prompt — the LLM references them by name, never generates URLs.
 3. **Bias toward over-escalation** — bake this into the system prompt explicitly ("when uncertain between two urgency levels, choose the more urgent one") rather than hoping it falls out of the model's judgment.
 4. **General chat mode** — simpler: freeform Q&A grounded in the last N records, no red-flag gate needed since it's not diagnosing. This is where persona (Phase 6b) applies most naturally.
 5. **Health literacy links** — static lookup table keyed off urgency level or specialist type. Each key returns 2-3 curated `{title, url}` pairs. Hardcode in a JSON file, verify links before demo. Categories and sample URLs:
@@ -75,6 +76,7 @@ Keep every LLM-facing endpoint returning **validated, schema-checked JSON only**
    - `cardiologist`, `dermatologist`, etc. → condition-specific literacy (trusted specialty orgs)
    - general → health literacy bases (Kemenkes, WHO, Mayo Clinic)
    - **LLM never generates URLs** — eliminates link-injection risk entirely.
+   - Source citations in the triage explanation (e.g. `"per WHO guidelines"`) map directly to the curated links for that category — users see the citation inline and get the matching link in the "learn more" section.
 
 ## Phase 4 — Frontend (4–5h, Frontend owner, build in parallel against the API contract from Phase 0)
 

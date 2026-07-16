@@ -67,3 +67,4 @@ class ResultTurn(BaseModel):
     type: Literal["result"] = "result"
     urgency: Urgency
     explanation: str
+    specialist: Optional[str] = None

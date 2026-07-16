@@ -54,7 +54,7 @@ Model/provider choice is treated as swappable — NVIDIA NIM (OpenAI-compatible 
 - **Symptom-check mode:**
   1. Deterministic red-flag checklist runs first — hardcoded keywords/symptoms (chest pain, difficulty breathing, sudden severe headache, uncontrolled bleeding, stroke signs, loss of consciousness, etc.) → if matched, return `emergency` immediately, **skip the LLM entirely**. This is the concrete answer to "what if the AI is wrong."
   2. If no red flags: LLM asks one structured multiple-choice question at a time, capped at 3-4 rounds, using the last N records as context.
-   3. Final round outputs urgency level (`24h` / `monitor` / `emergency`) + plain-language explanation + mapped specialist type (`"specialist": "cardiologist" | "dermatologist" | null`). Same pattern as urgency → facility type: a hardcoded lookup table, not an LLM decision.
+   3. Final round outputs urgency level (`24h` / `monitor` / `emergency`) + plain-language explanation (with inline source citations like `"per WHO guidelines"` or `"(source: CDC)"`) + mapped specialist type (`"specialist": "cardiologist" | "dermatologist" | null`). Same pattern as urgency → facility type: a hardcoded lookup table, not an LLM decision.
    4. Urgency classification is explicitly biased toward over-escalation via the system prompt ("when uncertain between two urgency levels, choose the more urgent one").
 
 ### Facility map

@@ -11,6 +11,16 @@ PERSONA_MAP = {
     "detailed": "Respond in a thorough, educational tone — explain reasoning and provide context.",
 }
 
+SOURCES = """Trusted sources (reference these by name in explanations):
+- WHO: World Health Organization — global health guidelines
+- CDC: Centers for Disease Control and Prevention — disease info
+- Mayo Clinic: patient education resource
+- NHS: UK National Health Service — symptom checker standards
+- Kemenkes: Indonesian Ministry of Health — local health guidelines
+- IDI: Ikatan Dokter Indonesia — Indonesian medical association
+
+When providing a "result", cite the relevant source in the explanation like "per WHO guidelines" or "(source: CDC)". Do NOT fabricate URLs."""
+
 TRIAGE_SYSTEM_PROMPT = """You are a health literacy assistant. Respond to health-related questions.
 
 You must output ONLY valid JSON. No prose, no markdown.
@@ -24,7 +34,7 @@ The "type" field determines your response:
    {{"type": "question", "text": "your question", "options": ["option1", "option2", "option3"]}}
 
 3. "result" — Provide a triage assessment. Use this when you have enough information.
-   {{"type": "result", "urgency": "emergency" | "monitor" | "24h", "explanation": "detailed explanation"}}
+   {{"type": "result", "urgency": "emergency" | "monitor" | "24h", "explanation": "detailed explanation (cite sources like 'per WHO guidelines')", "specialist": "specialty or null"}}
 
 Urgency levels:
 - "emergency": Life-threatening or potentially life-threatening. Immediate medical attention needed.
@@ -58,7 +68,7 @@ def run_triage(
     persona: str = "straightforward",
 ) -> AnswerTurn | QuestionTurn | ResultTurn:
     tone = PERSONA_MAP.get(persona, persona)
-    system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", tone)
+    system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", tone) + "\n\n" + SOURCES
     raw = chat_completion(
         system=system_prompt,
         user=message,

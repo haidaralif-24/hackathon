@@ -3,7 +3,10 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
-  "/": { title: "Welcome!", subtitle: "Here's what you can do today." },
+  "/": {
+    title: "Welcome back!",
+    subtitle: "Report your symptoms or ask a health question.",
+  },
   "/chat": {
     title: "AI Chat Assistant",
     subtitle: "Get answers. Understand your health. Find care.",

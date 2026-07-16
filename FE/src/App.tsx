@@ -12,17 +12,20 @@ import Account from "./pages/Account"
 import Journal from "./pages/Journal"
 
 function AppLayout({ session }: { session: Session }) {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-[#F5F7FB]">
-        <Sidebar />
+        <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
         <Navbar
           email={session.user.email!}
           onSignOut={() => supabase.auth.signOut()}
           userName={session.user.user_metadata?.full_name}
           userAvatar={session.user.user_metadata?.avatar_url}
+          onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         />
-        <div className="pl-60">
+        <div className="md:pl-16 lg:pl-64">
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Dashboard userName={session.user.user_metadata?.full_name} />} />

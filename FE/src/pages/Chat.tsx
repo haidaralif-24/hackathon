@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
-import { sendChatMessage, listSessions, createSession, deleteSession, getSessionMessages } from "../api/client"
+import { sendChatMessage, listSessions, deleteSession, getSessionMessages } from "../api/client"
 import type { ChatSession, ChatTurn, Message } from "../types"
 import { Send, Loader2, HeartPulse, ChevronDown, Plus, X, MessageCircle } from "lucide-react"
 import MapMessage from "../components/MapMessage"

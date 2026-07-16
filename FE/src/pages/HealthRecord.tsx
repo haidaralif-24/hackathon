@@ -176,7 +176,7 @@ export default function HealthRecord({ providerToken }: { providerToken?: string
                           {rec.filename || "Health Record"}
                         </span>
                         <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${bg} ${text}`}>
-                          {docType.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                          {docType.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
                         </span>
                       </div>
                       <button className="text-[#6B7280] hover:text-[#111827] cursor-pointer" aria-label="More options">

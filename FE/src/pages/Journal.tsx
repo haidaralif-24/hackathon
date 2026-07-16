@@ -25,7 +25,6 @@ function streakCount(entries: JournalEntry[]): number {
     .sort()
     .reverse()
   let count = 0
-  const today = new Date().toISOString().slice(0, 10)
   for (const date of sorted) {
     const expected = new Date()
     expected.setDate(expected.getDate() - count)

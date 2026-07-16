@@ -2,7 +2,7 @@ import { useLocation } from "react-router-dom"
 import { MessageCircle, ChevronDown } from "lucide-react"
 
 const pageMeta: Record<string, { title: string; subtitle: string }> = {
-  "/": { title: "Welcome back!", subtitle: "Here's what you can do today." },
+  "/": { title: "Welcome!", subtitle: "Here's what you can do today." },
   "/chat": { title: "AI Chat Assistant", subtitle: "Get answers. Understand your health. Find care." },
   "/health-record": { title: "Health Record", subtitle: "Your synced files and extracted health history." },
   "/account": { title: "Account", subtitle: "Manage your profile and settings." },

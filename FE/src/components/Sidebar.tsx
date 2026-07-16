@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom"
 import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, Heart } from "lucide-react"
 
 const links = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/", label: "Home", icon: LayoutDashboard },
   { to: "/chat", label: "Chat", icon: MessageCircle },
   { to: "/health-record", label: "Health Records", icon: ClipboardList },
   { to: "/account", label: "Account", icon: User },

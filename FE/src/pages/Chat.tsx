@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { sendChatMessage } from "../api/client"
 import type { ChatTurn, Message } from "../types"
-import { Send, Loader2, MessageCircle, HeartPulse, ChevronDown } from "lucide-react"
+import { Send, Loader2, HeartPulse, ChevronDown } from "lucide-react"
 import MapMessage from "../components/MapMessage"
 
 function now(): string {
@@ -98,7 +99,6 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
-  const [mode, setMode] = useState<"general" | "triage">("general")
   const [tone, setTone] = useState("Clinical")
   const [mapCollapsed, setMapCollapsed] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -107,11 +107,23 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     explanation: string
   } | null>(null)
 
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialSent = useRef(false)
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
 
-  const persona = mode === "triage" ? "straightforward" : "empathetic"
+  useEffect(() => {
+    const q = searchParams.get("q")
+    if (q && !initialSent.current) {
+      initialSent.current = true
+      setSearchParams({}, { replace: true })
+      handleSend(q)
+    }
+  }, [])
+
+  const persona = "empathetic"
 
   function addMessage(msg: Message) {
     setMessages((prev) => [...prev, msg])
@@ -149,32 +161,8 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] bg-[#F5F7FB]">
-      {/* Tab toggle + Tone dropdown */}
-      <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-[#E5E7EB]">
-        <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
-          <button
-            onClick={() => setMode("general")}
-            className={`flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
-              mode === "general"
-                ? "bg-[#2F6FED] text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <MessageCircle className="w-4 h-4" />
-            General Q&A
-          </button>
-          <button
-            onClick={() => setMode("triage")}
-            className={`flex items-center gap-1.5 px-4 py-1.5 text-sm font-medium rounded-full transition-colors ${
-              mode === "triage"
-                ? "bg-[#2F6FED] text-white shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            <HeartPulse className="w-4 h-4" />
-            Symptom Triage
-          </button>
-        </div>
+      {/* Tone row */}
+      <div className="flex items-center justify-end px-6 py-3 bg-white border-b border-[#E5E7EB]">
         <div className="flex items-center gap-2">
           <label className="text-xs text-[#6B7280] font-medium">Tone:</label>
           <div className="relative">
@@ -202,9 +190,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                 <p className="text-sm text-[#6B7280] text-center max-w-md">
                   Describe your symptoms or ask a health question to start.
                   <br />
-                  {mode === "triage"
-                    ? "I'll help assess your condition and find nearby care."
-                    : "I'll provide helpful health information."}
+                  I'll provide helpful health information and assess your condition.
                 </p>
               </div>
             )}

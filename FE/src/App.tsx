@@ -24,7 +24,7 @@ function AppLayout({ session }: { session: Session }) {
         <div className="pl-60">
           <main className="flex-1">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Dashboard userName={session.user.user_metadata?.full_name} />} />
               <Route path="/chat" element={<Chat userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} />} />
               <Route path="/health-record" element={<HealthRecord />} />
               <Route path="/account" element={<Account />} />

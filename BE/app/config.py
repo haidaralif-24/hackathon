@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    nvidia_nim_api_key: str = ""
-    nvidia_nim_base_url: str = "https://integrate.api.nvidia.com/v1"
+    llm_api_key: str = ""
+    llm_base_url: str = "https://integrate.api.nvidia.com/v1"
     supabase_url: str = ""
     supabase_key: str = ""
     maps_api_key: str = ""

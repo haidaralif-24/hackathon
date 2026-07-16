@@ -11,8 +11,8 @@ from app.schemas import ExtractedRecord
 
 def _get_client() -> OpenAI:
     return OpenAI(
-        base_url=settings.nvidia_nim_base_url,
-        api_key=settings.nvidia_nim_api_key,
+        base_url=settings.llm_base_url,
+        api_key=settings.llm_api_key,
     )
 
 

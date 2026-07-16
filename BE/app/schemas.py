@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Urgency(str, Enum):
@@ -41,25 +41,24 @@ class ExtractedRecord(BaseModel):
     notes: Optional[str] = None
 
 
-class ChatMode(str, Enum):
-    general = "general"
-    symptom_check = "symptom_check"
-
-
 class ChatRequest(BaseModel):
     message: str
-    mode: ChatMode = ChatMode.general
     history: list[dict] = []
     persona: str = "straightforward"
 
 
+class AnswerTurn(BaseModel):
+    type: Literal["answer"] = "answer"
+    text: str
+
+
 class QuestionTurn(BaseModel):
-    type: str = "question"
+    type: Literal["question"] = "question"
     text: str
     options: list[str]
 
 
 class ResultTurn(BaseModel):
-    type: str = "result"
+    type: Literal["result"] = "result"
     urgency: Urgency
     explanation: str

@@ -8,17 +8,19 @@ from openai import OpenAI
 from app.config import settings
 from app.schemas import ExtractedRecord
 
-client = OpenAI(
-    base_url=settings.nvidia_nim_base_url,
-    api_key=settings.nvidia_nim_api_key,
-)
+
+def _get_client() -> OpenAI:
+    return OpenAI(
+        base_url=settings.nvidia_nim_base_url,
+        api_key=settings.nvidia_nim_api_key,
+    )
 
 
 def ocr_image(image_bytes: bytes) -> str:
     b64 = base64.b64encode(image_bytes).decode()
     data_uri = f"data:image/png;base64,{b64}"
 
-    resp = client.chat.completions.create(
+    resp = _get_client().chat.completions.create(
         model="nvidia/nemotron-ocr-v2",
         messages=[
             {
@@ -46,7 +48,7 @@ Output ONLY valid JSON matching this schema, NO prose, NO markdown:
 
 
 def structure_ocr(ocr_text: str) -> ExtractedRecord:
-    resp = client.chat.completions.create(
+    resp = _get_client().chat.completions.create(
         model="meta/llama-4-maverick",
         messages=[
             {"role": "system", "content": EXTRACTION_PROMPT},
@@ -71,7 +73,7 @@ def analyze_image(image_bytes: bytes, prompt: str = "Describe what you see in th
     b64 = base64.b64encode(image_bytes).decode()
     data_uri = f"data:image/png;base64,{b64}"
 
-    resp = client.chat.completions.create(
+    resp = _get_client().chat.completions.create(
         model="meta/llama-4-maverick",
         messages=[
             {"role": "system", "content": VLM_SYSTEM},
@@ -102,5 +104,5 @@ def chat_completion(
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
 
-    resp = client.chat.completions.create(**kwargs)
+    resp = _get_client().chat.completions.create(**kwargs)
     return resp.choices[0].message.content or ""

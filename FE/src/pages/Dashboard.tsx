@@ -18,10 +18,10 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="mt-8 w-full max-w-2xl bg-white p-6 rounded-2xl shadow-md flex gap-4 justify-space-between items-center">
+      <div className="mt-8 w-full max-w-2xl bg-white p-6 rounded-2xl shadow-md flex gap-4 justify-between items-center">
         <div>
           <span className="text-lg font-semibold text-gray-900">
-            Syncronize record!
+            Synchronize Record!
           </span>
           <p className="text-gray-500 text-lg mt-4">
             Let me know your record for more relevant analysis.

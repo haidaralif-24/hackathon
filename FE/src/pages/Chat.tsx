@@ -1,24 +1,28 @@
-import { useState, useRef, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
-import { sendChatMessage, listSessions, createSession, deleteSession, getSessionMessages } from "../api/client"
-import type { ChatSession, ChatTurn, Message } from "../types"
-import { Send, Loader2, HeartPulse, ChevronDown, Plus, X, MessageCircle } from "lucide-react"
-import MapMessage from "../components/MapMessage"
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { sendChatMessage } from "../api/client";
+import type { ChatTurn, Message } from "../types";
+import { Send, Loader2, HeartPulse, ChevronDown } from "lucide-react";
+import MapMessage from "../components/MapMessage";
 
 function now(): string {
-  return new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  const now = new Date()
-  const diff = now.getTime() - d.getTime()
-  if (diff < 86400000 && d.getDate() === now.getDate()) return "Today"
-  if (diff < 172800000 && d.getDate() === now.getDate() - 1) return "Yesterday"
-  return d.toLocaleDateString()
-}
-
-function ChatBubbleUser({ content, time, avatar, name }: { content: string; time: string; avatar?: string; name?: string }) {
+function ChatBubbleUser({
+  content,
+  time,
+  avatar,
+  name,
+}: {
+  content: string;
+  time: string;
+  avatar?: string;
+  name?: string;
+}) {
   return (
     <div className="flex justify-end gap-3">
       <div className="max-w-[70%]">
@@ -37,16 +41,19 @@ function ChatBubbleUser({ content, time, avatar, name }: { content: string; time
         )}
       </div>
     </div>
-  )
+  );
 }
 
 function ChatBubbleAssistant({
-  content, time, turn, onOptionClick,
+  content,
+  time,
+  turn,
+  onOptionClick,
 }: {
-  content: string
-  time: string
-  turn?: ChatTurn
-  onOptionClick: (opt: string) => void
+  content: string;
+  time: string;
+  turn?: ChatTurn;
+  onOptionClick: (opt: string) => void;
 }) {
   return (
     <div className="flex gap-3">
@@ -60,13 +67,16 @@ function ChatBubbleAssistant({
         <p className="text-[11px] text-[#6B7280] mt-1">{time}</p>
       </div>
     </div>
-  )
+  );
 }
 
-function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void) {
+function renderTurnContent(
+  turn: ChatTurn,
+  onOptionClick: (opt: string) => void,
+) {
   switch (turn.type) {
     case "answer":
-      return <p>{turn.text}</p>
+      return <p>{turn.text}</p>;
     case "question":
       return (
         <div>
@@ -83,7 +93,7 @@ function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void)
             ))}
           </div>
         </div>
-      )
+      );
     case "result":
       return (
         <div>
@@ -92,126 +102,78 @@ function renderTurnContent(turn: ChatTurn, onOptionClick: (opt: string) => void)
           </p>
           <p className="mt-1">{turn.explanation}</p>
           {turn.specialist && (
-            <p className="mt-1 text-[#2F6FED] font-medium">Recommendation: {turn.specialist}</p>
+            <p className="mt-1 text-[#2F6FED] font-medium">
+              Recommendation: {turn.specialist}
+            </p>
           )}
         </div>
-      )
+      );
   }
 }
 
 interface ChatProps {
-  userName?: string
-  userAvatar?: string
+  userName?: string;
+  userAvatar?: string;
 }
 
 export default function Chat({ userName, userAvatar }: ChatProps) {
-  const [sessions, setSessions] = useState<ChatSession[]>([])
-  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [loadingMsgs, setLoadingMsgs] = useState(false)
-  const [tone, setTone] = useState("Clinical")
-  const [mapCollapsed, setMapCollapsed] = useState(false)
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [tone, setTone] = useState("Clinical");
+  const [mapCollapsed, setMapCollapsed] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
   const [lastUrgency, setLastUrgency] = useState<{
-    urgency: "emergency" | "monitor" | "24h"
-    explanation: string
-  } | null>(null)
+    urgency: "emergency" | "monitor" | "24h";
+    explanation: string;
+  } | null>(null);
 
-  const [searchParams, setSearchParams] = useSearchParams()
-  const initialSent = useRef(false)
-
-  useEffect(() => {
-    loadSessions()
-  }, [])
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialSent = useRef(false);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   useEffect(() => {
-    const q = searchParams.get("q")
+    const q = searchParams.get("q");
     if (q && !initialSent.current) {
-      initialSent.current = true
-      setSearchParams({}, { replace: true })
-      handleNewChat(q)
+      initialSent.current = true;
+      setSearchParams({}, { replace: true });
+      handleSend(q);
     }
-  }, [])
+  }, []);
 
-  const persona = "empathetic"
+  const persona = "empathetic";
 
-  async function loadSessions() {
-    try {
-      const s = await listSessions()
-      setSessions(s)
-      if (s.length > 0 && !activeSessionId) {
-        selectSession(s[0].id)
-      }
-    } catch {
-      // supabase not configured — sessions disabled
-    }
+  function addMessage(msg: Message) {
+    setMessages((prev) => [...prev, msg]);
   }
 
-  async function selectSession(id: string) {
-    setActiveSessionId(id)
-    setLoadingMsgs(true)
-    setLastUrgency(null)
+  async function handleSend(text: string) {
+    if (!text.trim() || loading) return;
+    const ts = now();
+    addMessage({ role: "user", content: text, timestamp: ts });
+    setInput("");
+    setLoading(true);
     try {
-      const msgs = await getSessionMessages(id)
-      setMessages(msgs.map((m) => ({
-        role: m.role as "user" | "assistant",
+      const history = messages.map((m) => ({
+        role: m.role,
         content: m.content,
-        timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      })))
-    } catch {
-      // silent fail
-    } finally {
-      setLoadingMsgs(false)
-    }
-  }
-
-  async function handleNewChat(initialMessage?: string) {
-    setActiveSessionId(null)
-    setMessages([])
-    setLastUrgency(null)
-    if (initialMessage) {
-      await handleSend(initialMessage, true)
-    }
-  }
-
-  async function handleDelete(sessionId: string) {
-    try {
-      await deleteSession(sessionId)
-      setSessions((prev) => prev.filter((s) => s.id !== sessionId))
-      if (activeSessionId === sessionId) {
-        setActiveSessionId(null)
-        setMessages([])
-        setLastUrgency(null)
-      }
-    } catch {
-      // silent fail
-    }
-  }
-
-  async function handleSend(text: string, isInitial?: boolean) {
-    if (!text.trim() || loading) return
-    const ts = now()
-    setMessages((prev) => [...prev, { role: "user", content: text, timestamp: ts }])
-    setInput("")
-    setLoading(true)
-    try {
-      const history = messages.map((m) => ({ role: m.role, content: m.content }))
-      const turn: ChatTurn = await sendChatMessage(text, history, persona, activeSessionId || undefined)
+      }));
+      const turn: ChatTurn = await sendChatMessage(text, history, persona);
       const content =
         turn.type === "answer"
           ? turn.text
           : turn.type === "question"
             ? turn.text
-            : turn.explanation
-      setMessages((prev) => [...prev, { role: "assistant", content, turn, timestamp: now() }])
+            : turn.explanation;
+      addMessage({ role: "assistant", content, turn, timestamp: now() });
       if (turn.type === "result") {
-        setLastUrgency({ urgency: turn.urgency, explanation: turn.explanation })
+        setLastUrgency({
+          urgency: turn.urgency,
+          explanation: turn.explanation,
+        });
       }
       if (!activeSessionId && !isInitial) {
         await loadSessions()
@@ -223,9 +185,9 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         role: "assistant",
         content: "Sorry, something went wrong. Please try again.",
         timestamp: now(),
-      }])
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -272,17 +234,70 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         </div>
       </div>
 
-      {/* Main chat column */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Tone row */}
-        <div className="flex items-center justify-end px-6 py-3 bg-white border-b border-[#E5E7EB]">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-[#6B7280] font-medium">Tone:</label>
-            <div className="relative">
-              <select
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-                className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
+      {/* Two-column content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Chat column */}
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            {messages.length === 0 && (
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-[#6B7280] text-center max-w-md">
+                  Describe your symptoms or ask a health question to start.
+                  <br />
+                  I'll provide helpful health information and assess your
+                  condition.
+                </p>
+              </div>
+            )}
+            {messages.map((msg, i) =>
+              msg.role === "user" ? (
+                <ChatBubbleUser
+                  key={i}
+                  content={msg.content}
+                  time={msg.timestamp}
+                  avatar={userAvatar}
+                  name={userName}
+                />
+              ) : (
+                <ChatBubbleAssistant
+                  key={i}
+                  content={msg.content}
+                  time={msg.timestamp}
+                  turn={msg.turn}
+                  onOptionClick={(opt) => handleSend(opt)}
+                />
+              ),
+            )}
+            {loading && (
+              <div className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#2F6FED] flex items-center justify-center shrink-0">
+                  <HeartPulse className="w-4 h-4 text-white" />
+                </div>
+                <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#2F6FED]" />
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef} />
+          </div>
+
+          {/* Input bar */}
+          <div className="px-6 py-3 bg-white border-t border-[#E5E7EB]">
+            <div className="flex gap-3 items-center">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
+                placeholder="Type your message..."
+                className="flex-1 px-4 py-2.5 text-sm border border-[#E5E7EB] rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
+                disabled={loading}
+              />
+              <button
+                onClick={() => handleSend(input)}
+                disabled={loading || !input.trim()}
+                className="w-10 h-10 bg-[#2F6FED] text-white rounded-full flex items-center justify-center hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
+                aria-label="Send message"
               >
                 <option>Clinical</option>
                 <option>Empathetic</option>
@@ -290,6 +305,13 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
             </div>
+<<<<<<< HEAD
+=======
+            <p className="text-[11px] text-[#6B7280] mt-2 text-center">
+              AI responses are for informational purposes only and not a
+              substitute for professional medical advice.
+            </p>
+>>>>>>> 57c62d8 (Implement Chat page per DESIGN.md: tab toggle, two-column layout, styled bubbles, MapMessage panel, updated Navbar/Sidebar/App)
           </div>
         </div>
 
@@ -374,5 +396,5 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         />
       </div>
     </div>
-  )
+  );
 }

@@ -13,14 +13,19 @@ import Account from "./pages/Account"
 function AppLayout({ session }: { session: Session }) {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-[#F5F7FB]">
         <Sidebar />
-        <Navbar email={session.user.email!} onSignOut={() => supabase.auth.signOut()} />
+        <Navbar
+          email={session.user.email!}
+          onSignOut={() => supabase.auth.signOut()}
+          userName={session.user.user_metadata?.full_name}
+          userAvatar={session.user.user_metadata?.avatar_url}
+        />
         <div className="pl-60">
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/chat" element={<Chat />} />
+              <Route path="/chat" element={<Chat userName={session.user.user_metadata?.full_name} userAvatar={session.user.user_metadata?.avatar_url} />} />
               <Route path="/health-record" element={<HealthRecord />} />
               <Route path="/account" element={<Account />} />
             </Routes>

@@ -1,19 +1,17 @@
-import { ChevronDown, ChevronUp, AlertTriangle, MapPin, Plus, Minus } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { ChevronDown, ChevronUp, AlertTriangle } from "lucide-react"
+import L from "leaflet"
+import "leaflet/dist/leaflet.css"
+import { API_BASE } from "../api/client"
 
 interface Facility {
-  id: number
   name: string
   type: string
-  hours: string
   address: string
-  distance: string
+  lat: number
+  lng: number
+  phone?: string
 }
-
-const mockFacilities: Facility[] = [
-  { id: 1, name: "City General Hospital", type: "Emergency Room", hours: "Open 24hrs", address: "123 Main St, Cityville", distance: "0.4 mi" },
-  { id: 2, name: "Downtown Medical Clinic", type: "Urgent Care", hours: "8AM–8PM", address: "456 Oak Ave, Cityville", distance: "0.8 mi" },
-  { id: 3, name: "Wellness Primary Care", type: "Primary Care", hours: "9AM–5PM", address: "789 Pine Rd, Cityville", distance: "1.2 mi" },
-]
 
 interface MapMessageProps {
   collapsed: boolean
@@ -22,12 +20,93 @@ interface MapMessageProps {
   explanation: string
 }
 
+const urgencyLabelMap: Record<string, string> = {
+  emergency: "EMERGENCY",
+  "24h": "24 HOUR CARE RECOMMENDED",
+  monitor: "MONITOR AT HOME",
+}
+
+function createColoredIcon(n: number, color: string) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:24px;height:24px;background:${color};color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3)">${n}</div>`,
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+  })
+}
+
 export default function MapMessage({ collapsed, onToggle, urgency, explanation }: MapMessageProps) {
-  const urgencyLabel =
-    urgency === "emergency" ? "EMERGENCY" :
-    urgency === "24h" ? "24 HOUR CARE RECOMMENDED" :
-    urgency === "monitor" ? "MONITOR AT HOME" :
-    null
+  const [facilities, setFacilities] = useState<Facility[]>([])
+  const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
+  const mapRef = useRef<HTMLDivElement>(null)
+  const mapInstance = useRef<L.Map | null>(null)
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setUserPos({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => setUserPos({ lat: -6.2088, lng: 106.8456 }),
+      { timeout: 5000 },
+    )
+  }, [])
+
+  useEffect(() => {
+    if (!urgency) return
+    const params = new URLSearchParams({ urgency })
+    if (userPos) {
+      params.set("lat", userPos.lat.toString())
+      params.set("lng", userPos.lng.toString())
+    }
+    fetch(`${API_BASE}/facilities?${params}`)
+      .then((r) => r.json())
+      .then((data) => setFacilities(data.facilities ?? []))
+      .catch(() => setFacilities([]))
+  }, [urgency, userPos])
+
+  const center = userPos || { lat: -6.2088, lng: 106.8456 }
+  const allCoords = [...facilities.map((f) => ({ lat: f.lat, lng: f.lng })), center]
+
+  useEffect(() => {
+    if (collapsed || !mapRef.current || facilities.length === 0) return
+    if (mapInstance.current) {
+      mapInstance.current.remove()
+      mapInstance.current = null
+    }
+    const map = L.map(mapRef.current).setView([center.lat, center.lng], 13)
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors",
+    }).addTo(map)
+
+    facilities.forEach((f, i) => {
+      const dirs = `https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lng}`
+      L.marker([f.lat, f.lng], { icon: createColoredIcon(i + 1, "#2F6FED") })
+        .addTo(map)
+        .bindPopup(`<b>${f.name}</b><br/>${f.address}<br/><a href="${dirs}" target="_blank" style="color:#2F6FED;font-size:11px;font-weight:600">Directions</a>`)
+    })
+
+    if (userPos) {
+      L.marker([userPos.lat, userPos.lng], {
+        icon: L.divIcon({
+          className: "",
+          html: `<div style="color:#E23B3B"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3" fill="white"/></svg></div>`,
+          iconSize: [20, 20],
+          iconAnchor: [10, 20],
+        }),
+      }).addTo(map)
+    }
+
+    if (allCoords.length > 0) {
+      const bounds = L.latLngBounds(allCoords.map((c) => [c.lat, c.lng]))
+      map.fitBounds(bounds, { padding: [40, 40] })
+    }
+
+    mapInstance.current = map
+    return () => {
+      map.remove()
+      mapInstance.current = null
+    }
+  }, [collapsed, facilities, userPos])
+
+  const urgencyLabel = urgency ? urgencyLabelMap[urgency] : null
 
   return (
     <div className="m-4 bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
@@ -58,19 +137,20 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
             <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider mb-2">Urgency Status</p>
             <div className="flex gap-2">
               {(["EMERGENCY", "MODERATE", "MONITOR"] as const).map((label) => {
-                const isActive = urgency && (
+                const isActive =
                   (label === "EMERGENCY" && urgency === "emergency") ||
                   (label === "MODERATE" && urgency === "24h") ||
                   (label === "MONITOR" && urgency === "monitor")
-                )
                 return (
                   <span
                     key={label}
                     className={`px-3 py-1 text-[11px] font-semibold rounded-full ${
                       isActive
-                        ? label === "EMERGENCY" ? "bg-red-100 text-red-700"
-                        : label === "MODERATE" ? "bg-orange-100 text-orange-700"
-                        : "bg-yellow-100 text-yellow-700"
+                        ? label === "EMERGENCY"
+                          ? "bg-red-100 text-red-700"
+                          : label === "MODERATE"
+                            ? "bg-orange-100 text-orange-700"
+                            : "bg-yellow-100 text-yellow-700"
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
@@ -83,57 +163,36 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
 
           <div className="flex gap-4">
             <div className="flex-1 min-w-0 space-y-3">
-              {mockFacilities.map((f) => (
-                <div key={f.id} className="flex gap-2.5">
+              {facilities.length === 0 && (
+                <p className="text-xs text-gray-400">No facilities found for this urgency level.</p>
+              )}
+              {facilities.map((f, i) => (
+                <div key={i} className="flex gap-2.5">
                   <div className="w-6 h-6 rounded-full bg-[#2F6FED] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
-                    {f.id}
+                    {i + 1}
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-semibold text-[#2F6FED] truncate">{f.name}</p>
-                    <p className="text-[11px] text-[#6B7280]">{f.type} — {f.hours}</p>
+                    <p className="text-[11px] text-[#6B7280]">{f.type}</p>
                     <p className="text-[11px] text-[#6B7280] truncate">{f.address}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 text-[10px] font-medium bg-gray-100 text-gray-600 rounded-full">
-                      {f.distance} away
-                    </span>
+                    {f.phone && <p className="text-[11px] text-[#6B7280]">{f.phone}</p>}
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${f.lat},${f.lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-1 text-[11px] font-medium text-[#2F6FED] hover:underline"
+                    >
+                      Directions
+                    </a>
                   </div>
                 </div>
               ))}
-              <button className="text-xs font-medium text-[#2F6FED] flex items-center gap-1 hover:underline">
-                View more facilities
-                <ChevronDown className="w-3 h-3" />
-              </button>
             </div>
 
-            <div className="w-40 shrink-0 bg-gray-50 rounded-xl h-48 relative overflow-hidden border border-gray-200">
-              <div
-                className="absolute inset-0 opacity-[0.07]"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(#9CA3AF 1px, transparent 1px), linear-gradient(90deg, #9CA3AF 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
-                }}
-              />
-              <div className="absolute top-4 left-5 w-5 h-5 bg-[#2F6FED] rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-md border border-white/30 z-10">
-                1
-              </div>
-              <div className="absolute top-14 left-14 w-5 h-5 bg-[#2F6FED] rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-md border border-white/30 z-10">
-                2
-              </div>
-              <div className="absolute top-28 left-8 w-5 h-5 bg-[#2F6FED] rounded-full flex items-center justify-center text-white text-[10px] font-bold shadow-md border border-white/30 z-10">
-                3
-              </div>
-              <div className="absolute bottom-10 right-6 z-10">
-                <MapPin className="w-5 h-5 text-[#E23B3B] fill-[#E23B3B]" />
-              </div>
-              <div className="absolute bottom-2 right-2 flex flex-col gap-0.5 z-10">
-                <button className="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 border border-gray-200" aria-label="Zoom in">
-                  <Plus className="w-3.5 h-3.5 text-gray-600" />
-                </button>
-                <button className="w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-sm hover:bg-gray-50 border border-gray-200" aria-label="Zoom out">
-                  <Minus className="w-3.5 h-3.5 text-gray-600" />
-                </button>
-              </div>
-            </div>
+            <div
+              ref={mapRef}
+              className="w-44 shrink-0 rounded-xl h-52 overflow-hidden border border-gray-200 z-0"
+            />
           </div>
         </div>
       )}

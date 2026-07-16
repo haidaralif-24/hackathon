@@ -1,4 +1,4 @@
-let API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+export let API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 if (API_BASE && !/^https?:\/\//.test(API_BASE)) {
   API_BASE = `https://${API_BASE}`;
 }

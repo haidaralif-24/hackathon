@@ -1,4 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+let API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+if (API_BASE && !/^https?:\/\//.test(API_BASE)) {
+  API_BASE = `https://${API_BASE}`;
+}
 
 export async function checkHealth(): Promise<{ status: string }> {
   const res = await fetch(`${API_BASE}/health`);

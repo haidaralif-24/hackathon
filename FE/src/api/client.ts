@@ -28,19 +28,62 @@ export async function sendChatMessage(
 
 export async function listSessions(): Promise<ChatSession[]> {
   const res = await fetch(`${API_BASE}/sessions`);
+export interface LabValue {
+  name: string
+  value: string
+  unit: string
+  flag: string | null
+}
+
+export interface Medication {
+  name: string
+  dosage: string
+  frequency: string
+}
+
+export interface ExtractedRecord {
+  document_type: string
+  date: string | null
+  medications: Medication[]
+  lab_values: LabValue[]
+  provider: string | null
+  notes: string | null
+}
+
+export interface HealthRecord {
+  id: string
+  file_id: string
+  filename: string | null
+  created_at: string
+  extracted: ExtractedRecord
+}
+
+export async function listRecords(): Promise<{ records: HealthRecord[] }> {
+  const res = await fetch(`${API_BASE}/records`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
+<<<<<<< HEAD
 export async function createSession(): Promise<ChatSession> {
   const res = await fetch(`${API_BASE}/sessions`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({}),
+=======
+export async function syncFiles(
+  files: { filename: string; source?: string }[],
+): Promise<{ files: Record<string, unknown>[] }> {
+  const res = await fetch(`${API_BASE}/sync`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(files),
+>>>>>>> e2954f6 (API for health record)
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
+<<<<<<< HEAD
 
 export async function deleteSession(sessionId: string): Promise<void> {
   const res = await fetch(`${API_BASE}/sessions/${sessionId}`, { method: "DELETE" });
@@ -75,3 +118,5 @@ export async function deleteJournalEntry(entryId: string): Promise<void> {
   const res = await fetch(`${API_BASE}/journal/${entryId}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
+=======
+>>>>>>> e2954f6 (API for health record)

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { sendChatMessage } from "../api/client";
 import type { ChatTurn, Message } from "../types";
 import { Send, Loader2, HeartPulse, ChevronDown } from "lucide-react";

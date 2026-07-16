@@ -5,6 +5,12 @@ import json
 from app.llm import chat_completion
 from app.schemas import AnswerTurn, QuestionTurn, ResultTurn, Urgency
 
+PERSONA_MAP = {
+    "straightforward": "Respond in a direct, clinical tone — concise, factual, minimal warmth.",
+    "friendly": "Respond in a warm, approachable tone — empathetic and encouraging.",
+    "detailed": "Respond in a thorough, educational tone — explain reasoning and provide context.",
+}
+
 TRIAGE_SYSTEM_PROMPT = """You are a health literacy assistant. Respond to health-related questions.
 
 You must output ONLY valid JSON. No prose, no markdown.
@@ -51,7 +57,8 @@ def run_triage(
     history: list[dict] | None = None,
     persona: str = "straightforward",
 ) -> AnswerTurn | QuestionTurn | ResultTurn:
-    system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", persona)
+    tone = PERSONA_MAP.get(persona, PERSONA_MAP["straightforward"])
+    system_prompt = TRIAGE_SYSTEM_PROMPT.replace("{persona}", tone)
     raw = chat_completion(
         system=system_prompt,
         user=message,

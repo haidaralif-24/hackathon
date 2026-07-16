@@ -1,11 +1,12 @@
 import { MessageCircle } from "lucide-react";
+import Button from "../components/Button";
 
 export default function Dashboard() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-4rem)]">
-      <h1 className="text-5xl font-bold text-gray-900">Welcome Back!</h1>
+      <h1 className="text-5xl font-bold text-gray-900">Welcome Back, Alex!</h1>
       <p className="text-gray-500 text-lg mt-4">
-        You feel unwell today? Tell me! I'll help you
+        You feel unwell today? Let me know! I'll analyse your symptoms
       </p>
 
       <div className="relative mt-8 w-full max-w-lg">
@@ -17,8 +18,18 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="mt-8 w-full max-w-lg bg-white p-6 rounded-2xl shadow-md flex flex-col items-center gap-4">
-        <span className="text-lg font-semibold text-gray-900">Cek-In</span>
+      <div className="mt-8 w-full max-w-2xl bg-white p-6 rounded-2xl shadow-md flex gap-4 justify-space-between items-center">
+        <div>
+          <span className="text-lg font-semibold text-gray-900">
+            Syncronize record!
+          </span>
+          <p className="text-gray-500 text-lg mt-4">
+            Let me know your record for more relevant analysis.
+          </p>
+        </div>
+        <Button className="ml-auto" border="full">
+          Sync Now
+        </Button>
       </div>
     </div>
   );

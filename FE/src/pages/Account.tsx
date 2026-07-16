@@ -12,7 +12,7 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
   const [tone, setTone] = useState("Clinical")
 
   return (
-    <div className="max-w-lg mx-auto mt-12 space-y-6 px-6">
+    <div className="max-w-7xl mx-auto mt-12 mb-12 space-y-6 px-6 min-h-[calc(100vh-12rem)]">
       {/* Profile card */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(16,24,40,0.06)] p-6 flex items-center gap-5">
         <div className="w-14 h-14 rounded-full overflow-hidden shrink-0">

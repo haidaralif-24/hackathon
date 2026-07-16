@@ -10,8 +10,8 @@ const links = [
 
 export default function Sidebar() {
   return (
-    <aside className="fixed left-0 top-0 z-50 w-60 h-screen bg-white border-r border-gray-200 flex flex-col">
-      <div className="h-16 flex items-center px-6 border-b border-gray-200">
+    <aside className="fixed left-0 top-0 z-50 w-60 h-screen bg-white shadow-md flex flex-col">
+      <div className="h-16 flex items-center px-6">
         <span className="text-lg font-semibold text-gray-900">Cek-In</span>
       </div>
 

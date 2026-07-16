@@ -2,7 +2,7 @@ import { MessageCircle } from "lucide-react"
 
 export default function Navbar() {
   return (
-    <nav className="sticky top-0 z-30 w-full bg-white border-b border-gray-200 px-6 h-16">
+    <nav className="sticky top-0 z-30 w-full bg-white shadow-sm px-6 h-16">
       <div className="flex items-center justify-end gap-2 h-full">
         <div className="relative">
           <MessageCircle className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />

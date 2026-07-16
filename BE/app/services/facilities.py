@@ -9,12 +9,14 @@ OSM_TAG_MAP = {
     "urgent_care": "amenity=clinic",
     "clinic": "amenity=clinic",
     "doctor": "amenity=doctors",
+    "veterinary": "amenity=veterinary",
 }
 
 FACILITY_MAP = {
     "emergency": "hospital",
     "24h": "urgent_care",
     "monitor": "doctor",
+    "animal": "veterinary",
 }
 
 SPECIALIST_MAP = {
@@ -27,6 +29,7 @@ SPECIALIST_MAP = {
     "dentist": "clinic",
     "psychiatrist": "clinic",
     "general_practitioner": "doctor",
+    "veterinarian": "veterinary",
 }
 
 HARDCODED_FACILITIES = [
@@ -38,6 +41,9 @@ HARDCODED_FACILITIES = [
     {"name": "UGD RS Pelni", "type": "hospital", "address": "Jl. K.S. Tubun No.92, Jakarta Barat", "lat": -6.1568, "lng": 106.7983, "phone": "(021) 5482525"},
     {"name": "RS Royal Taruma", "type": "hospital", "address": "Jl. Daan Mogot No.34, Jakarta Barat", "lat": -6.1531, "lng": 106.7858, "phone": "(021) 56985888"},
     {"name": "Klinik Sehat", "type": "doctor", "address": "Jl. Kemanggisan Raya No.15, Jakarta Barat", "lat": -6.1617, "lng": 106.7944, "phone": "(021) 5326688"},
+    {"name": "RS Hewan Jakarta", "type": "veterinary", "address": "Jl. Ragunan No.1, Jakarta Selatan", "lat": -6.3063, "lng": 106.8215, "phone": "(021) 7891011"},
+    {"name": "Klinik Hewan Keluarga", "type": "veterinary", "address": "Jl. Senopati No.45, Jakarta Selatan", "lat": -6.2444, "lng": 106.8016, "phone": "(021) 7223456"},
+    {"name": "Petshop & Klinik Animal Care", "type": "veterinary", "address": "Jl. Kemang Raya No.18, Jakarta Selatan", "lat": -6.2597, "lng": 106.8044, "phone": "(021) 7182345"},
 ]
 
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"

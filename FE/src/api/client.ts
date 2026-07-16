@@ -88,3 +88,10 @@ export async function runSync(providerToken?: string, folderId?: string): Promis
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
+
+export async function fetchRecords(): Promise<{ id: string; filename: string | null; created_at: string; extracted: any }[]> {
+  const res = await fetch(`${API_BASE}/records`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.records || [];
+}

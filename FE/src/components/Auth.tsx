@@ -7,10 +7,7 @@ export default function Auth() {
   const [mode, setMode] = useState<Mode>("signin")
 
   const handleGoogleAuth = () => {
-    supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { scopes: "https://www.googleapis.com/auth/drive.readonly" },
-    })
+    supabase.auth.signInWithOAuth({ provider: "google" })
   }
 
   return (

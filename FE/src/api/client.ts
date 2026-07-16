@@ -76,15 +76,8 @@ export async function deleteJournalEntry(entryId: string): Promise<void> {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 
-export async function runSync(providerToken?: string, folderId?: string): Promise<{ files: unknown[]; synced: number }> {
-  const params = new URLSearchParams();
-  if (folderId) params.set("folder_id", folderId);
-  const qs = params.toString();
-  const headers: Record<string, string> = {};
-  if (providerToken) {
-    headers["Authorization"] = `Bearer ${providerToken}`;
-  }
-  const res = await fetch(`${API_BASE}/sync?${qs}`, { headers });
+export async function runSync(): Promise<{ files: unknown[]; synced: number }> {
+  const res = await fetch(`${API_BASE}/sync`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }

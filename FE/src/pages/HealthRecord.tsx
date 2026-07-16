@@ -23,7 +23,7 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
 }
 
-export default function HealthRecord({ providerToken }: { providerToken?: string | null }) {
+export default function HealthRecord() {
   const [records, setRecords] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
@@ -49,7 +49,7 @@ export default function HealthRecord({ providerToken }: { providerToken?: string
   async function handleSync() {
     setSyncing(true)
     try {
-      const result = await runSync(providerToken || undefined, folderId || undefined)
+      const result = await runSync()
       const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
       setSyncStatus(`Last synced: ${now} (${result.synced} new file${result.synced !== 1 ? "s" : ""})`)
     } catch {

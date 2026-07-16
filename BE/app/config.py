@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     llm_api_key: str = ""
-    llm_base_url: str = "https://integrate.api.nvidia.com/v1"
+    llm_base_url: str = "https://api.deepseek.com"
     supabase_url: str = ""
     supabase_key: str = ""
     maps_api_key: str = ""

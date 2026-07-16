@@ -21,7 +21,7 @@ def ocr_image(image_bytes: bytes) -> str:
     data_uri = f"data:image/png;base64,{b64}"
 
     resp = _get_client().chat.completions.create(
-        model="nvidia/nemotron-ocr-v2",
+        model="deepseek-chat",
         messages=[
             {
                 "role": "user",
@@ -49,7 +49,7 @@ Output ONLY valid JSON matching this schema, NO prose, NO markdown:
 
 def structure_ocr(ocr_text: str) -> ExtractedRecord:
     resp = _get_client().chat.completions.create(
-        model="meta/llama-4-maverick",
+        model="deepseek-chat",
         messages=[
             {"role": "system", "content": EXTRACTION_PROMPT},
             {"role": "user", "content": ocr_text},
@@ -74,7 +74,7 @@ def analyze_image(image_bytes: bytes, prompt: str = "Describe what you see in th
     data_uri = f"data:image/png;base64,{b64}"
 
     resp = _get_client().chat.completions.create(
-        model="meta/llama-4-maverick",
+        model="deepseek-chat",
         messages=[
             {"role": "system", "content": VLM_SYSTEM},
             {
@@ -100,7 +100,7 @@ def chat_completion(
         messages.extend(history)
     messages.append({"role": "user", "content": user})
 
-    kwargs = {"model": "meta/llama-4-maverick", "messages": messages}
+    kwargs = {"model": "deepseek-chat", "messages": messages}
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
 

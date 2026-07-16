@@ -146,7 +146,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
       const s = await listSessions()
       setSessions(s)
       if (s.length > 0 && !activeSessionId) {
-        selectSession(s[0].id)
+        await selectSession(s[0].id)
       }
     } catch {
       // supabase not configured — sessions disabled
@@ -155,8 +155,9 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
 
   async function selectSession(id: string) {
     setActiveSessionId(id)
-    setLoadingMsgs(true)
+    setMessages([])
     setLastUrgency(null)
+    setLoadingMsgs(true)
     try {
       const msgs = await getSessionMessages(id)
       setMessages(msgs.map((m) => ({
@@ -165,7 +166,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       })))
     } catch {
-      // silent fail
+      setMessages([])
     } finally {
       setLoadingMsgs(false)
     }

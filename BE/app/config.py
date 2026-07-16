@@ -4,8 +4,11 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     nvidia_nim_api_key: str = ""
     nvidia_nim_base_url: str = "https://integrate.api.nvidia.com/v1"
-    db_path: str = "./data/health.db"
+    supabase_url: str = ""
+    supabase_key: str = ""
     maps_api_key: str = ""
+    google_client_id: str = ""
+    google_client_secret: str = ""
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

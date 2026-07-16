@@ -17,12 +17,15 @@ Two decisions locked in to unblock the plan (flag if you want them changed):
 
 ## Phase 1 — Backend core + DB (2–3h, Backend owner)
 
-**Schema (SQLite):**
-```
-files(id, filename, source, synced_at, processed BOOLEAN)
-records(id, file_id, timestamp, extracted_json, TEXT)   -- append-only, never updated
-chat_messages(id, session_id, role, content, timestamp)
-user_prefs(id, persona TEXT DEFAULT 'straightforward')  -- see Phase 6b
+**Schema (Supabase / PostgreSQL):**
+
+Run `supabase_schema.sql` in the Supabase SQL Editor:
+
+```sql
+files(id UUID PK, filename TEXT, source TEXT, synced_at TIMESTAMPTZ, processed BOOLEAN)
+records(id UUID PK, file_id UUID FK→files, created_at TIMESTAMPTZ, extracted_json JSONB)
+chat_messages(id UUID PK, session_id UUID, role TEXT, content TEXT, created_at TIMESTAMPTZ)
+user_prefs(id UUID PK, persona TEXT DEFAULT 'straightforward')
 ```
 
 **Endpoints:**

@@ -30,7 +30,7 @@ An AI-powered health literacy/triage assistant that keeps a lightweight, user-ow
 - **Web app** — not native. Browser-native OAuth/Picker flow, zero install friction for judges, no separate native toolchain to learn under time pressure.
 - **Frontend:** React, deployed on Vercel or Netlify.
 - **Backend:** Single Python service using **FastAPI** — one backend, not split with Go, to avoid inter-service glue and extra deployment risk. Deployed on Render or Railway.
-- **Database:** Embedded/file-based NoSQL or SQLite (e.g. lowdb/NeDB or SQLite with JSON columns), living alongside the backend — no separate DB server to run or configure.
+- **Database:** Supabase (PostgreSQL) — managed DB with auto-generated REST API, real-time subscriptions, auth, and storage. Replaces the original SQLite/embedded approach.
 
 ### Data flow & storage
 - Google Sign-In + Picker API (`drive.file` scope) — user picks one Drive folder; app can only ever see that folder.
@@ -96,7 +96,7 @@ Model/provider choice is treated as swappable — NVIDIA NIM (OpenAI-compatible 
 | Phase | Owner | Hours | Notes |
 |---|---|---|---|
 | 0. Setup | Whole team | 1–1.5h | Repo scaffold, deploy skeletons immediately, `.env`, agree on JSON schema up front |
-| 1. Backend core + DB | Backend | 2–3h | SQLite schema, `/sync`, `/files/{id}/process`, `/records`, `/chat`, `/facilities` |
+| 1. Backend core + DB | Backend | 2–3h | Supabase schema, `/sync`, `/files/{id}/process`, `/records`, `/chat`, `/facilities` |
 | 2. Extraction pipeline | AI Pipeline | 4–5h | OCR → structuring → Pydantic validation; test with real messy images early |
 | 3. Triage chat | AI Pipeline / Backend | 4–5h | Red-flag checklist, adaptive MCQ loop, over-escalation bias |
 | 4. Frontend | Frontend | 4–5h | Upload/sync screen, records dashboard, chat UI, map view, loading/error states |

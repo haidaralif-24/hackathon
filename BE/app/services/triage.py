@@ -75,5 +75,10 @@ def run_triage(
         history=history or [],
         json_mode=True,
     )
-    data = json.loads(raw)
+    if not raw:
+        raise ValueError("LLM returned empty response")
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        raise ValueError(f"LLM returned invalid JSON: {raw[:200]}")
     return parse_turn(data)

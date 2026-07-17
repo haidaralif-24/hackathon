@@ -28,7 +28,6 @@ function formatTime(iso: string) {
 export default function HealthRecord() {
   const { t } = useLanguage()
   const [records, setRecords] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
   const [syncing, setSyncing] = useState(false)
   const [synced, setSynced] = useState(false)
   const [syncStatus, setSyncStatus] = useState(`${t("hr_last_synced")}: —`)
@@ -138,11 +137,7 @@ export default function HealthRecord() {
           </div>
 
           {/* Timeline Entries */}
-          {loading ? (
-            <div className="flex justify-center py-20">
-              <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
-            </div>
-          ) : filtered.length === 0 ? (
+          {filtered.length === 0 ? (
             <p className="text-sm text-[#6B7280] text-center py-20">{t("hr_no_records")}</p>
           ) : (
             <div className="space-y-6">

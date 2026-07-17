@@ -37,6 +37,7 @@ create table if not exists public.user_prefs (
 
 create table if not exists public.journal_entries (
     id uuid primary key default gen_random_uuid(),
+    user_id uuid not null,
     mood text not null check (mood in ('great', 'good', 'okay', 'bad', 'terrible')),
     content text not null default '',
     created_at timestamptz default now()

@@ -16,6 +16,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import MapMessage from "../components/MapMessage";
+import { useLanguage } from "../contexts/LanguageContext";
 
 function now(): string {
   return new Date().toLocaleTimeString([], {
@@ -24,12 +25,12 @@ function now(): string {
   });
 }
 
-function formatDate(iso: string): string {
+function formatDate(iso: string, t: (key: string) => string): string {
   const d = new Date(iso);
   const now = new Date();
   const diff = now.getTime() - d.getTime();
-  if (diff < 86400000 && d.getDate() === now.getDate()) return "Today";
-  if (diff < 172800000 && d.getDate() === now.getDate() - 1) return "Yesterday";
+  if (diff < 86400000 && d.getDate() === now.getDate()) return t("chat_today");
+  if (diff < 172800000 && d.getDate() === now.getDate() - 1) return t("chat_yesterday");
   return d.toLocaleDateString();
 }
 
@@ -142,6 +143,7 @@ interface ChatProps {
 }
 
 export default function Chat({ userName, userAvatar }: ChatProps) {
+  const { t } = useLanguage()
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -209,8 +211,8 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     }
   }, []);
 
-  const persona = tone === "Custom"
-    ? `${localStorage.getItem("custom_persona_name") || "Custom"}: ${localStorage.getItem("custom_persona_desc") || "Respond naturally"}`
+  const persona = tone === t("tone_custom")
+    ? `${localStorage.getItem("custom_persona_name") || t("tone_custom")}: ${localStorage.getItem("custom_persona_desc") || ""}`
     : tone;
 
   async function loadSessions() {
@@ -345,7 +347,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         ...prev,
         {
           role: "assistant",
-          content: "Sorry, something went wrong. Please try again.",
+          content: t("chat_error"),
           timestamp: now(),
         },
       ]);
@@ -378,7 +380,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
             className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
-            New Chat
+            {t("chat_new")}
           </button>
         </div>
         <div className="flex-1 overflow-y-auto">
@@ -403,7 +405,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                   {s.title}
                 </p>
                 <p className="text-[10px] text-[#6B7280]">
-                  {formatDate(s.updated_at)}
+                  {formatDate(s.updated_at, t)}
                 </p>
               </div>
               <button
@@ -412,7 +414,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                   handleDelete(s.id);
                 }}
                 className="shrink-0 p-0.5 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                aria-label="Delete session"
+                aria-label={t("chat_delete_session")}
               >
                 <X className="w-3 h-3" />
               </button>
@@ -428,22 +430,22 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           <button
             onClick={() => setSessionSidebarOpen(true)}
             className="lg:hidden flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#2F6FED] hover:bg-[#EAF1FE] rounded-lg transition-colors cursor-pointer"
-            aria-label="Open sessions"
+            aria-label={t("chat_sessions")}
           >
             <MessageCircle className="w-4 h-4" />
-            Sessions
+            {t("chat_sessions")}
           </button>
           <div className="flex items-center gap-2 ml-auto">
-            <label className="text-xs text-[#6B7280] font-medium">Tone:</label>
+            <label className="text-xs text-[#6B7280] font-medium">{t("chat_tone")}</label>
             <div className="relative">
               <select
                 value={tone}
                 onChange={(e) => setTone(e.target.value)}
                 className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
               >
-                <option>Clinical</option>
-                <option>Empathetic</option>
-                <option>Straightforward</option>
+                <option>{t("tone_clinical")}</option>
+                <option>{t("tone_empathetic")}</option>
+                <option>{t("tone_straightforward")}</option>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
             </div>
@@ -464,11 +466,10 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
             <div className="flex items-center justify-center h-full">
               <p className="text-sm text-[#6B7280] text-center max-w-md">
                 {activeSessionId
-                  ? "No messages yet. Start a conversation!"
-                  : "Describe your symptoms or ask a health question to start."}
+                  ? t("chat_no_messages")
+                  : t("chat_empty")}
                 <br />
-                I'll provide helpful health information and assess your
-                condition.
+                {t("chat_empty_sub")}
               </p>
             </div>
           )}
@@ -518,7 +519,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend(input)}
-              placeholder="Type your message..."
+              placeholder={t("chat_placeholder")}
               className="flex-1 px-4 py-2.5 text-sm border border-[#E5E7EB] rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
               disabled={loading}
             />
@@ -532,8 +533,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
             </button>
           </div>
           <p className="text-[11px] text-[#6B7280] mt-2 text-center">
-            AI responses are for informational purposes only and not a
-            substitute for professional medical advice.
+            {t("chat_disclaimer")}
           </p>
         </div>
       </div>

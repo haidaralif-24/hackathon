@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp, AlertTriangle, Loader2 } from "lucide-react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { API_BASE } from "../api/client"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface Facility {
   name: string
@@ -20,12 +21,6 @@ interface MapMessageProps {
   explanation: string
 }
 
-const urgencyLabelMap: Record<string, string> = {
-  emergency: "EMERGENCY",
-  "24h": "24 HOUR CARE RECOMMENDED",
-  monitor: "MONITOR AT HOME",
-}
-
 function createColoredIcon(n: number, color: string) {
   return L.divIcon({
     className: "",
@@ -36,6 +31,13 @@ function createColoredIcon(n: number, color: string) {
 }
 
 export default function MapMessage({ collapsed, onToggle, urgency, explanation }: MapMessageProps) {
+  const { t } = useLanguage()
+
+  const urgencyLabel = urgency
+    ? urgency === "emergency" ? t("urgency_emergency")
+    : urgency === "24h" ? t("urgency_24h")
+    : t("urgency_monitor")
+    : null
   const [facilities, setFacilities] = useState<Facility[]>([])
   const [loadingFacilities, setLoadingFacilities] = useState(false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
@@ -110,12 +112,10 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
     }
   }, [collapsed, facilities, userPos])
 
-  const urgencyLabel = urgency ? urgencyLabelMap[urgency] : null
-
   return (
     <div className="m-4 bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(16,24,40,0.06)] overflow-hidden">
       <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-        <h3 className="text-sm font-semibold text-[#111827]">MapMessage</h3>
+        <h3 className="text-sm font-semibold text-[#111827]">{t("map_title")}</h3>
         <button
           onClick={onToggle}
           className="text-gray-400 hover:text-gray-600 transition-colors"
@@ -138,21 +138,21 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
           )}
 
           <div>
-            <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider mb-2">Urgency Status</p>
+            <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider mb-2">{t("map_urgency_status")}</p>
             <div className="flex gap-2">
-              {(["EMERGENCY", "MODERATE", "MONITOR"] as const).map((label) => {
+              {([t("urgency_emergency_label"), t("urgency_moderate_label"), t("urgency_monitor_label")] as const).map((label) => {
                 const isActive =
-                  (label === "EMERGENCY" && urgency === "emergency") ||
-                  (label === "MODERATE" && urgency === "24h") ||
-                  (label === "MONITOR" && urgency === "monitor")
+                  (label === t("urgency_emergency_label") && urgency === "emergency") ||
+                  (label === t("urgency_moderate_label") && urgency === "24h") ||
+                  (label === t("urgency_monitor_label") && urgency === "monitor")
                 return (
                   <span
                     key={label}
                     className={`px-3 py-1 text-[11px] font-semibold rounded-full ${
                       isActive
-                        ? label === "EMERGENCY"
+                        ? label === t("urgency_emergency_label")
                           ? "bg-red-100 text-red-700"
-                          : label === "MODERATE"
+                          : label === t("urgency_moderate_label")
                             ? "bg-orange-100 text-orange-700"
                             : "bg-yellow-100 text-yellow-700"
                         : "bg-gray-100 text-gray-400"
@@ -172,7 +172,7 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
               </div>
             )}
             {!loadingFacilities && facilities.length === 0 && (
-              <p className="text-xs text-gray-400">No facilities found for this urgency level.</p>
+              <p className="text-xs text-gray-400">{t("map_no_facilities")}</p>
             )}
             {!loadingFacilities && facilities.map((f, i) => (
               <div key={i} className="flex gap-2.5">
@@ -190,7 +190,7 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
                     rel="noopener noreferrer"
                     className="inline-block mt-1 text-[11px] font-medium text-[#2F6FED] hover:underline"
                   >
-                    Directions
+                    {t("map_directions")}
                   </a>
                 </div>
               </div>

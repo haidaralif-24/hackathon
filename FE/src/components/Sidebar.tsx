@@ -9,13 +9,14 @@ import {
   BookHeart,
   ArrowRight,
 } from "lucide-react";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const links = [
-  { to: "/", label: "Home", icon: LayoutDashboard },
-  { to: "/chat", label: "Chat", icon: MessageCircle },
-  { to: "/journal", label: "Journal", icon: BookHeart },
-  { to: "/health-record", label: "Health Records", icon: ClipboardList },
-  { to: "/account", label: "Account", icon: User },
+  { to: "/", labelKey: "sidebar_home", icon: LayoutDashboard },
+  { to: "/chat", labelKey: "sidebar_chat", icon: MessageCircle },
+  { to: "/journal", labelKey: "sidebar_journal", icon: BookHeart },
+  { to: "/health-record", labelKey: "sidebar_health_records", icon: ClipboardList },
+  { to: "/account", labelKey: "sidebar_account", icon: User },
 ];
 
 interface SidebarProps {
@@ -24,6 +25,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
+  const { t } = useLanguage();
   const [overlayOpen, setOverlayOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +121,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {links.map(({ to, label, icon: Icon }) => (
+          {links.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -142,7 +144,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#2F6FED] rounded-r-full" />
                   )}
                   <Icon className="w-5 h-5 shrink-0" />
-                  <span>{label}</span>
+                  <span>{t(labelKey)}</span>
                 </>
               )}
             </NavLink>
@@ -155,10 +157,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-bold leading-tight">
-              Your health, our priority.
+              {t("sidebar_your_health_priority")}
             </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
-              Smart tools for a healthier you.
+              {t("sidebar_smart_tools")}
             </p>
           </div>
         </div>
@@ -181,7 +183,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {links.map(({ to, label, icon: Icon }) => (
+          {links.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -201,7 +203,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#2F6FED] rounded-r-full" />
                   )}
                   <Icon className="w-5 h-5 shrink-0" />
-                  <span>{label}</span>
+                  <span>{t(labelKey)}</span>
                 </>
               )}
             </NavLink>
@@ -214,10 +216,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-bold leading-tight">
-              Your health, our priority.
+              {t("sidebar_your_health_priority")}
             </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
-              Smart tools for a healthier you.
+              {t("sidebar_smart_tools")}
             </p>
           </div>
         </div>
@@ -244,7 +246,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {links.map(({ to, label, icon: Icon }) => (
+          {links.map(({ to, labelKey, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
@@ -264,7 +266,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
                     <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-[#2F6FED] rounded-r-full" />
                   )}
                   <Icon className="w-5 h-5 shrink-0" />
-                  <span>{label}</span>
+                  <span>{t(labelKey)}</span>
                 </>
               )}
             </NavLink>
@@ -277,10 +279,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
             <h3 className="text-sm font-bold leading-tight">
-              Your health, our priority.
+              {t("sidebar_your_health_priority")}
             </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
-              Smart tools for a healthier you.
+              {t("sidebar_smart_tools")}
             </p>
           </div>
         </div>

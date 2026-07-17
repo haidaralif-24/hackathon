@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { supabase } from "../lib/supabase"
+import { useLanguage } from "../contexts/LanguageContext"
 
 type Mode = "signin" | "signup"
 
 export default function Auth() {
+  const { t } = useLanguage()
   const [mode, setMode] = useState<Mode>("signin")
 
   const handleGoogleAuth = () => {
@@ -25,10 +27,10 @@ export default function Auth() {
             <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-3xl font-bold text-white leading-tight">
-            Your Health,<br />Our Priority
+            {t("auth_your_health")}
           </h1>
           <p className="text-white/70 text-sm mt-3 leading-relaxed">
-            Smart tools for a healthier you. Manage your health records, get AI-powered insights, and find nearby care.
+            {t("auth_smart_tools")}
           </p>
         </div>
       </div>
@@ -58,7 +60,7 @@ export default function Auth() {
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                Sign In
+                {t("auth_signin_title")}
               </button>
               <button
                 onClick={() => setMode("signup")}
@@ -68,22 +70,22 @@ export default function Auth() {
                     : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                Sign Up
+                {t("auth_signup_title")}
               </button>
             </div>
 
             {mode === "signin" ? (
               <>
-                <h2 className="text-2xl font-bold text-[#111827]">Welcome back</h2>
+                <h2 className="text-2xl font-bold text-[#111827]">{t("auth_welcome_back")}</h2>
                 <p className="text-sm text-[#6B7280] mt-1.5">
-                  Sign in to manage your health records and get AI-powered insights.
+                  {t("auth_signin_desc")}
                 </p>
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold text-[#111827]">Create your account</h2>
+                <h2 className="text-2xl font-bold text-[#111827]">{t("auth_create_account")}</h2>
                 <p className="text-sm text-[#6B7280] mt-1.5">
-                  Join Ben Healthy to track your health records and get AI-powered insights.
+                  {t("auth_signup_desc")}
                 </p>
               </>
             )}
@@ -100,29 +102,29 @@ export default function Auth() {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/>
                 </svg>
-                {mode === "signin" ? "Sign in with Google" : "Sign up with Google"}
+                {mode === "signin" ? t("auth_signin_google") : t("auth_signup_google")}
               </button>
             </div>
 
             {mode === "signup" && (
               <p className="text-xs text-[#6B7280] mt-4 text-center">
-                Already have an account?{" "}
+                {t("auth_already_account")}{" "}
                 <button onClick={() => setMode("signin")} className="text-[#2F6FED] font-medium hover:underline">
-                  Sign in
+                  {t("auth_signin")}
                 </button>
               </p>
             )}
             {mode === "signin" && (
               <p className="text-xs text-[#6B7280] mt-4 text-center">
-                Don't have an account?{" "}
+                {t("auth_no_account")}{" "}
                 <button onClick={() => setMode("signup")} className="text-[#2F6FED] font-medium hover:underline">
-                  Sign up
+                  {t("auth_signup")}
                 </button>
               </p>
             )}
 
             <p className="text-xs text-[#6B7280] mt-4 text-center leading-relaxed">
-              By continuing, you agree to our Terms of Service and Privacy Policy.
+              {t("auth_terms")}
             </p>
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { LogOut, ChevronDown } from "lucide-react"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface AccountProps {
   userName?: string
@@ -8,9 +9,10 @@ interface AccountProps {
   onSignOut: () => void
 }
 
-const PRESET_TONES = ["Clinical", "Empathetic", "Straightforward", "Custom"]
+const PRESET_TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
 
 export default function Account({ userName, userAvatar, email, onSignOut }: AccountProps) {
+  const { t } = useLanguage()
   const [tone, setTone] = useState(() => localStorage.getItem("chat_tone") || "Clinical")
   const [customName, setCustomName] = useState(() => localStorage.getItem("custom_persona_name") || "")
   const [customDesc, setCustomDesc] = useState(() => localStorage.getItem("custom_persona_desc") || "")
@@ -48,12 +50,12 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
 
       {/* Preferences */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-[0_1px_3px_rgba(16,24,40,0.06)] p-6 space-y-5">
-        <h3 className="text-sm font-semibold text-[#111827]">Preferences</h3>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-[#111827]">Chat Tone</p>
-            <p className="text-xs text-[#6B7280]">Default tone for AI responses</p>
+        <h3 className="text-sm font-semibold text-[#111827]">{t("account_preferences")}</h3>
+ 
+         <div className="flex items-center justify-between">
+           <div>
+             <p className="text-sm font-medium text-[#111827]">{t("account_chat_tone")}</p>
+             <p className="text-xs text-[#6B7280]">{t("account_tone_desc")}</p>
           </div>
           <div className="relative">
             <select
@@ -61,26 +63,26 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
               onChange={(e) => setTone(e.target.value)}
               className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
             >
-              {PRESET_TONES.map((t) => <option key={t}>{t}</option>)}
+              {PRESET_TONE_KEYS.map((k) => <option key={k}>{t(k)}</option>)}
             </select>
             <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
-        {tone === "Custom" && (
+        {tone === t("tone_custom") && (
           <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-[#E5E7EB]">
-            <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider">Custom Persona</p>
+            <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider">{t("account_custom_persona")}</p>
             <input
               type="text"
               value={customName}
               onChange={(e) => setCustomName(e.target.value)}
-              placeholder="Persona name (e.g. Dr. Friendly)"
+              placeholder={t("account_persona_name_placeholder")}
               className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
             />
             <textarea
               value={customDesc}
               onChange={(e) => setCustomDesc(e.target.value)}
-              placeholder="Describe how the AI should behave (e.g. Always cheerful, uses simple language, encourages the user)"
+              placeholder={t("account_persona_desc_placeholder")}
               rows={3}
               className="w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent resize-none"
             />
@@ -88,7 +90,7 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
               onClick={saveCustom}
               className="px-4 py-2 text-xs font-semibold bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] transition-colors"
             >
-              {saved ? "Saved!" : "Save Persona"}
+              {saved ? t("account_saved") : t("account_save_persona")}
             </button>
           </div>
         )}
@@ -100,7 +102,7 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
         className="flex items-center gap-2.5 px-4 py-2.5 bg-white rounded-xl border border-[#E5E7EB] text-sm text-red-600 font-medium hover:bg-red-50 transition-colors shadow-[0_1px_3px_rgba(16,24,40,0.06)]"
       >
         <LogOut className="w-4 h-4" />
-        Sign out
+        {t("account_sign_out")}
       </button>
     </div>
   )

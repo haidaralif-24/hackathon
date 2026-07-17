@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { FolderOpen } from "lucide-react"
+import { useLanguage } from "../contexts/LanguageContext"
 
 interface DrivePickerProps {
   onFolderSelected: (folderId: string, folderName: string) => void
@@ -15,6 +16,7 @@ function extractFolderId(input: string): string | null {
 const DEMO_FOLDER = "https://drive.google.com/drive/folders/1D--1BDi9JLq81RtzzfuVW9V-hnuTn9Uk"
 
 export default function DrivePicker({ onFolderSelected }: DrivePickerProps) {
+  const { t } = useLanguage()
   const [value, setValue] = useState(DEMO_FOLDER)
 
   const handleSubmit = () => {
@@ -44,11 +46,11 @@ export default function DrivePicker({ onFolderSelected }: DrivePickerProps) {
           disabled={!extractFolderId(value)}
           className="px-4 py-2 text-sm font-medium bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors shrink-0"
         >
-          Connect
+          {t("hr_connect")}
         </button>
       </div>
       <p className="text-[11px] text-amber-600 flex items-center gap-1">
-        ⚠ Demo mode — Google Drive verification pending. Sync uses sample health data.
+        ⚠ {t("hr_demo_warning")}
       </p>
     </div>
   )

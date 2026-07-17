@@ -70,7 +70,14 @@ export default function Navbar({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="flex-1 lg:flex-none">
+        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 inline md:hidden">
+          <img
+            src="/BenHealthy.png"
+            alt="Ben Healthy"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex-1 lg:flex-none inline md:hidden">
           <h1 className="text-xl font-bold text-[#111827] ">
             {meta.title}
             {location.pathname === "/" && (
@@ -80,7 +87,9 @@ export default function Navbar({
               </>
             )}
           </h1>
-          <p className="text-xs text-[#6B7280]">{meta.subtitle}</p>
+          <p className="text-xs text-[#6B7280] hidden md:inline">
+            {meta.subtitle}
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <div className="relative">

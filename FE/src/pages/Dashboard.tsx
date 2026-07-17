@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MessageCircle, Bot } from "lucide-react"
+import { MessageCircle, Bot, ChevronDown } from "lucide-react"
 import Button from "../components/Button"
 import { listJournalEntries, saveJournalEntry } from "../api/client"
 import type { JournalEntry, Mood } from "../types"
@@ -22,44 +22,15 @@ const PRESET_PERSONA_DESC: Record<string, string> = {
   tone_straightforward: "Thorough, educational — explains reasoning",
 }
 
-function getPersonaInfo(t: (k: string) => string): {
-  label: string
-  desc: string
-  isCustom: boolean
-  isConfigured: boolean
-} {
+function getInitialTone(): string {
   const raw = localStorage.getItem("chat_tone")
-  let key = "tone_clinical"
-
-  if (raw) {
-    if (TONE_KEYS.includes(raw)) {
-      key = raw
-    } else if (raw === "Clinical" || raw === "Klinis") {
-      key = "tone_clinical"
-    } else if (raw === "Empathetic" || raw === "Empati") {
-      key = "tone_empathetic"
-    } else if (raw === "Straightforward" || raw === "Langsung") {
-      key = "tone_straightforward"
-    } else if (raw === "Custom" || raw === "Kustom") {
-      key = "tone_custom"
-    }
-  }
-
-  if (key === "tone_custom") {
-    const name = localStorage.getItem("custom_persona_name")
-    const desc = localStorage.getItem("custom_persona_desc")
-    if (name || desc) {
-      return { label: name || "Custom", desc: desc || "", isCustom: true, isConfigured: true }
-    }
-    return { label: t("tone_custom"), desc: t("home_persona_no_custom"), isCustom: true, isConfigured: false }
-  }
-
-  return {
-    label: t(key),
-    desc: PRESET_PERSONA_DESC[key] || "",
-    isCustom: false,
-    isConfigured: true,
-  }
+  if (!raw) return "tone_clinical"
+  if (TONE_KEYS.includes(raw)) return raw
+  if (raw === "Clinical" || raw === "Klinis") return "tone_clinical"
+  if (raw === "Empathetic" || raw === "Empati") return "tone_empathetic"
+  if (raw === "Straightforward" || raw === "Langsung") return "tone_straightforward"
+  if (raw === "Custom" || raw === "Kustom") return "tone_custom"
+  return "tone_clinical"
 }
 
 export default function Dashboard({ userName, userId }: { userName?: string; userId?: string }) {
@@ -69,6 +40,10 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const firstName = userName?.split(" ")[0] || "there"
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [moodText, setMoodText] = useState("")
+  const [tone, setTone] = useState(getInitialTone)
+  const [customName, setCustomName] = useState(() => localStorage.getItem("custom_persona_name") || "")
+  const [customDesc, setCustomDesc] = useState(() => localStorage.getItem("custom_persona_desc") || "")
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (userId) listJournalEntries(userId).then(setEntries).catch(() => {})
@@ -77,7 +52,16 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
 
-  const persona = getPersonaInfo(t)
+  const personaLabel = tone === "tone_custom" && (customName || customDesc)
+    ? customName || "Custom"
+    : t(tone)
+  const personaDesc = tone === "tone_custom"
+    ? (customName || customDesc ? customDesc : t("home_persona_no_custom"))
+    : PRESET_PERSONA_DESC[tone] || ""
+
+  useEffect(() => {
+    localStorage.setItem("chat_tone", tone)
+  }, [tone])
 
   async function handleMoodClick(mood: Mood) {
     if (!userId) return
@@ -186,16 +170,52 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
             <Bot className="w-4 h-4 text-[#2F6FED]" />
             <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">{t("home_ai_tone")}</p>
           </div>
-          <div className="mt-2">
-            <p className="text-sm font-semibold text-[#111827]">{persona.label}</p>
-            <p className="text-xs text-[#6B7280] mt-1">{persona.desc}</p>
-            {persona.isCustom && !persona.isConfigured && (
-              <button
-                onClick={() => navigate("/account")}
-                className="mt-2 text-xs font-medium text-[#2F6FED] hover:underline cursor-pointer"
+          <div className="mt-2 space-y-2">
+            <div className="relative">
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                className="appearance-none bg-white border border-[#E5E7EB] rounded-lg pl-2 pr-6 py-1 text-xs text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer w-full"
               >
-                {t("account_preferences")} →
-              </button>
+                {TONE_KEYS.map((k) => (
+                  <option key={k} value={k}>{t(k)}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+            </div>
+            {tone === "tone_custom" ? (
+              <div className="space-y-1.5">
+                <input
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder={t("account_persona_name_placeholder")}
+                  className="w-full px-2 py-1 text-xs border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
+                />
+                <textarea
+                  value={customDesc}
+                  onChange={(e) => setCustomDesc(e.target.value)}
+                  placeholder={t("account_persona_desc_placeholder")}
+                  rows={2}
+                  className="w-full px-2 py-1 text-xs border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent resize-none"
+                />
+                <button
+                  onClick={() => {
+                    localStorage.setItem("custom_persona_name", customName)
+                    localStorage.setItem("custom_persona_desc", customDesc)
+                    setSaved(true)
+                    setTimeout(() => setSaved(false), 2000)
+                  }}
+                  className="px-3 py-1 text-[11px] font-semibold bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] transition-colors cursor-pointer"
+                >
+                  {saved ? t("account_saved") : t("account_save_persona")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-[#111827]">{personaLabel}</p>
+                <p className="text-xs text-[#6B7280]">{personaDesc}</p>
+              </>
             )}
           </div>
         </div>

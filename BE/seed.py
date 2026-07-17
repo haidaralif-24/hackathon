@@ -5,6 +5,7 @@ from app.database import get_supabase
 MOCK_RECORDS = [
     {
         "filename": "Lab_Darah_Flulike_2026-06-15.pdf",
+        "created_at": "2026-06-15T09:30:00+07:00",
         "extracted": {
             "document_type": "lab_result",
             "date": "2026-06-15",
@@ -21,6 +22,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Resep_Obat_Flu_2026-06-10.pdf",
+        "created_at": "2026-06-10T14:15:00+07:00",
         "extracted": {
             "document_type": "prescription",
             "date": "2026-06-10",
@@ -34,22 +36,24 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Cek_Kesehatan_Rutin_2026-06-08.pdf",
+        "created_at": "2026-06-08T10:00:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-06-08",
             "lab_values": [
                 {"name": "Tekanan Darah", "value": "112/74", "unit": "mmHg", "flag": "normal"},
                 {"name": "Nadi", "value": "76", "unit": "bpm", "flag": "normal"},
-                {"name": "Suhu", "value": "36.7", "unit": "\u00b0C", "flag": "normal"},
+                {"name": "Suhu", "value": "36.7", "unit": "°C", "flag": "normal"},
                 {"name": "SpO2", "value": "99", "unit": "%", "flag": "normal"},
-                {"name": "BMI", "value": "21.8", "unit": "kg/m\u00b2", "flag": "normal"},
+                {"name": "BMI", "value": "21.8", "unit": "kg/m²", "flag": "normal"},
             ],
             "provider": "dr. Maya Kusuma, Sp.KKLP",
-            "notes": "Pemeriksaan rutin \u2014 semua vital dalam batas normal.",
+            "notes": "Pemeriksaan rutin — semua vital dalam batas normal.",
         },
     },
     {
         "filename": "Tes_Alergi_Musiman_2026-05-28.pdf",
+        "created_at": "2026-05-28T08:45:00+07:00",
         "extracted": {
             "document_type": "lab_result",
             "date": "2026-05-28",
@@ -65,6 +69,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Rontgen_Thorax_2026-05-20.pdf",
+        "created_at": "2026-05-20T11:30:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-05-20",
@@ -74,6 +79,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Catatan_Klinik_2026-05-12.pdf",
+        "created_at": "2026-05-12T16:00:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-05-12",
@@ -99,11 +105,13 @@ def seed():
         file_resp = db.table("files").insert({
             "filename": rec["filename"],
             "source": "gdrive",
+            "synced_at": rec["created_at"],
         }).execute()
         file_id = file_resp.data[0]["id"]
         db.table("records").insert({
             "file_id": file_id,
             "extracted_json": rec["extracted"],
+            "created_at": rec["created_at"],
         }).execute()
         count += 1
         print(f"  Seeded {rec['filename']}")

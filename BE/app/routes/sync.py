@@ -10,6 +10,7 @@ router = APIRouter(prefix="/sync", tags=["sync"])
 MOCK_RECORDS = [
     {
         "filename": "Lab_Darah_Flulike_2026-06-15.pdf",
+        "created_at": "2026-06-15T09:30:00+07:00",
         "extracted": {
             "document_type": "lab_result",
             "date": "2026-06-15",
@@ -26,6 +27,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Resep_Obat_Flu_2026-06-10.pdf",
+        "created_at": "2026-06-10T14:15:00+07:00",
         "extracted": {
             "document_type": "prescription",
             "date": "2026-06-10",
@@ -39,6 +41,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Cek_Kesehatan_Rutin_2026-06-08.pdf",
+        "created_at": "2026-06-08T10:00:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-06-08",
@@ -55,6 +58,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Tes_Alergi_Musiman_2026-05-28.pdf",
+        "created_at": "2026-05-28T08:45:00+07:00",
         "extracted": {
             "document_type": "lab_result",
             "date": "2026-05-28",
@@ -70,6 +74,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Rontgen_Thorax_2026-05-20.pdf",
+        "created_at": "2026-05-20T11:30:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-05-20",
@@ -79,6 +84,7 @@ MOCK_RECORDS = [
     },
     {
         "filename": "Catatan_Klinik_2026-05-12.pdf",
+        "created_at": "2026-05-12T16:00:00+07:00",
         "extracted": {
             "document_type": "note",
             "date": "2026-05-12",
@@ -104,12 +110,14 @@ def sync_mock():
         file_resp = db.table("files").insert({
             "filename": rec["filename"],
             "source": "gdrive",
+            "synced_at": rec["created_at"],
         }).execute()
         file_id = file_resp.data[0]["id"]
 
         db.table("records").insert({
             "file_id": file_id,
             "extracted_json": rec["extracted"],
+            "created_at": rec["created_at"],
         }).execute()
         inserted += 1
 

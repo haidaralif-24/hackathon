@@ -70,13 +70,16 @@ export default function Navbar({
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 inline md:hidden">
+        <a
+          href="/"
+          className="w-7 h-7 rounded-lg overflow-hidden shrink-0 inline md:hidden mr-3 md:mr-0"
+        >
           <img
             src="/BenHealthy.png"
             alt="Ben Healthy"
             className="w-full h-full object-cover"
           />
-        </div>
+        </a>
         <div className="flex-1 lg:flex-none inline md:hidden">
           <h1 className="text-xl font-bold text-[#111827] ">
             {meta.title}

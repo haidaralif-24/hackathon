@@ -76,7 +76,7 @@ export default function Navbar({
             {location.pathname === "/" && (
               <>
                 <span className="inline md:hidden">, {firstName}!</span>
-                <span className="hidden md:inline">, {userName}!</span>
+                <span className="hidden md:inline">, {userName || "there"}!</span>
               </>
             )}
           </h1>

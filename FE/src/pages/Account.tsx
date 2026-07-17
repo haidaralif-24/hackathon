@@ -9,11 +9,26 @@ interface AccountProps {
   onSignOut: () => void
 }
 
-const PRESET_TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
+const TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
+
+function getInitialTone(): string {
+  const raw = localStorage.getItem("chat_tone")
+  if (!raw) return "tone_clinical"
+  for (const key of TONE_KEYS) if (raw === key) return key
+  if (raw === "Clinical") return "tone_clinical"
+  if (raw === "Empathetic") return "tone_empathetic"
+  if (raw === "Straightforward") return "tone_straightforward"
+  if (raw === "Custom") return "tone_custom"
+  if (raw === "Klinis") return "tone_clinical"
+  if (raw === "Empati") return "tone_empathetic"
+  if (raw === "Langsung") return "tone_straightforward"
+  if (raw === "Kustom") return "tone_custom"
+  return "tone_clinical"
+}
 
 export default function Account({ userName, userAvatar, email, onSignOut }: AccountProps) {
   const { t } = useLanguage()
-  const [tone, setTone] = useState(() => localStorage.getItem("chat_tone") || "Clinical")
+  const [tone, setTone] = useState(getInitialTone)
   const [customName, setCustomName] = useState(() => localStorage.getItem("custom_persona_name") || "")
   const [customDesc, setCustomDesc] = useState(() => localStorage.getItem("custom_persona_desc") || "")
   const [saved, setSaved] = useState(false)
@@ -63,13 +78,13 @@ export default function Account({ userName, userAvatar, email, onSignOut }: Acco
               onChange={(e) => setTone(e.target.value)}
               className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
             >
-              {PRESET_TONE_KEYS.map((k) => <option key={k}>{t(k)}</option>)}
+              {TONE_KEYS.map((k) => <option key={k} value={k}>{t(k)}</option>)}
             </select>
             <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
           </div>
         </div>
 
-        {tone === t("tone_custom") && (
+        {tone === "tone_custom" && (
           <div className="bg-gray-50 rounded-xl p-4 space-y-3 border border-[#E5E7EB]">
             <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wider">{t("account_custom_persona")}</p>
             <input

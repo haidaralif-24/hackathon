@@ -21,6 +21,8 @@ def list_sessions():
 def create_session(body: ChatSessionCreate = ChatSessionCreate()):
     supabase = get_supabase()
     resp = supabase.table("chat_sessions").insert({"title": body.title}).execute()
+    if not resp.data:
+        raise HTTPException(status_code=500, detail="Failed to create session")
     return resp.data[0]
 
 

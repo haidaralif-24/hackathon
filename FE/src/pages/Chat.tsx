@@ -142,6 +142,23 @@ interface ChatProps {
   userAvatar?: string;
 }
 
+const TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
+
+function getInitialTone(): string {
+  const raw = localStorage.getItem("chat_tone")
+  if (!raw) return "tone_clinical"
+  for (const key of TONE_KEYS) if (raw === key) return key
+  if (raw === "Clinical") return "tone_clinical"
+  if (raw === "Empathetic") return "tone_empathetic"
+  if (raw === "Straightforward") return "tone_straightforward"
+  if (raw === "Custom") return "tone_custom"
+  if (raw === "Klinis") return "tone_clinical"
+  if (raw === "Empati") return "tone_empathetic"
+  if (raw === "Langsung") return "tone_straightforward"
+  if (raw === "Kustom") return "tone_custom"
+  return "tone_clinical"
+}
+
 export default function Chat({ userName, userAvatar }: ChatProps) {
   const { t } = useLanguage()
   const [sessions, setSessions] = useState<ChatSession[]>([]);
@@ -150,7 +167,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
-  const [tone, setTone] = useState(() => localStorage.getItem("chat_tone") || "Clinical");
+  const [tone, setTone] = useState(getInitialTone);
   const [mapCollapsed, setMapCollapsed] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -211,15 +228,19 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     }
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem("chat_tone", tone)
+  }, [tone])
+
   const persona = (() => {
-    if (tone === t("tone_custom")) {
-      const name = localStorage.getItem("custom_persona_name") || t("tone_custom")
+    if (tone === "tone_custom") {
+      const name = localStorage.getItem("custom_persona_name") || "Custom"
       const desc = localStorage.getItem("custom_persona_desc") || ""
       return `${name}: ${desc}`
     }
-    if (tone === t("tone_clinical")) return "Respond in a direct, clinical tone — concise, factual, minimal warmth."
-    if (tone === t("tone_empathetic")) return "Respond in a warm, approachable tone — empathetic and encouraging."
-    if (tone === t("tone_straightforward")) return "Respond in a thorough, educational tone — explain reasoning and provide context, balanced and accessible."
+    if (tone === "tone_clinical") return "Respond in a direct, clinical tone — concise, factual, minimal warmth."
+    if (tone === "tone_empathetic") return "Respond in a warm, approachable tone — empathetic and encouraging."
+    if (tone === "tone_straightforward") return "Respond in a thorough, educational tone — explain reasoning and provide context, balanced and accessible."
     return tone
   })()
 
@@ -459,10 +480,10 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                 onChange={(e) => setTone(e.target.value)}
                 className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
               >
-                <option>{t("tone_clinical")}</option>
-                <option>{t("tone_empathetic")}</option>
-                <option>{t("tone_straightforward")}</option>
-                <option>{t("tone_custom")}</option>
+                <option value="tone_clinical">{t("tone_clinical")}</option>
+                <option value="tone_empathetic">{t("tone_empathetic")}</option>
+                <option value="tone_straightforward">{t("tone_straightforward")}</option>
+                <option value="tone_custom">{t("tone_custom")}</option>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
             </div>

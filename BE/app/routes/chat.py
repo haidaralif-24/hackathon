@@ -24,6 +24,8 @@ def chat(req: ChatRequest) -> ChatResponse:
 
     if not session_id:
         resp = supabase.table("chat_sessions").insert({"title": "New Chat"}).execute()
+        if not resp.data:
+            raise HTTPException(status_code=500, detail="Failed to create chat session")
         session_id = resp.data[0]["id"]
 
     supabase.table("chat_messages").insert({

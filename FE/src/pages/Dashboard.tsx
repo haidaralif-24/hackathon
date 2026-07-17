@@ -33,7 +33,7 @@ function getInitialTone(): string {
   return "tone_clinical"
 }
 
-export default function Dashboard({ userName, userId }: { userName?: string; userId?: string }) {
+export default function Dashboard({ userName }: { userName?: string }) {
   const { t } = useLanguage()
   const [input, setInput] = useState("")
   const navigate = useNavigate()
@@ -46,8 +46,8 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
-    if (userId) listJournalEntries(userId).then(setEntries).catch(() => {})
-  }, [userId])
+    listJournalEntries().then(setEntries).catch(() => {})
+  }, [])
 
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
@@ -64,9 +64,8 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   }, [tone])
 
   async function handleMoodClick(mood: Mood) {
-    if (!userId) return
     try {
-      const saved = await saveJournalEntry(mood, moodText, userId)
+      const saved = await saveJournalEntry(mood, moodText)
       setMoodText("")
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))

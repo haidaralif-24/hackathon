@@ -38,7 +38,7 @@ function streakCount(entries: JournalEntry[]): number {
   return count
 }
 
-export default function Journal({ userId }: { userId?: string }) {
+export default function Journal() {
   const { t } = useLanguage()
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [mood, setMood] = useState<Mood | null>(null)
@@ -46,7 +46,7 @@ export default function Journal({ userId }: { userId?: string }) {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (userId) listJournalEntries(userId).then(setEntries).catch(() => {})
+    listJournalEntries().then(setEntries).catch(() => {})
   }, [])
 
   const todayStr = new Date().toISOString().slice(0, 10)
@@ -54,10 +54,10 @@ export default function Journal({ userId }: { userId?: string }) {
   const streak = streakCount(entries)
 
   async function handleSave() {
-    if (!mood || !userId) return
+    if (!mood) return
     setSaving(true)
     try {
-      const saved = await saveJournalEntry(mood, content, userId!)
+      const saved = await saveJournalEntry(mood, content)
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))
         return [saved, ...filtered]
@@ -72,9 +72,8 @@ export default function Journal({ userId }: { userId?: string }) {
   }
 
   async function handleDelete(id: string) {
-    if (!userId) return
     try {
-      await deleteJournalEntry(id, userId!)
+      await deleteJournalEntry(id)
       setEntries((prev) => prev.filter((e) => e.id !== id))
     } catch {
       // silent

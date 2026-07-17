@@ -28,6 +28,8 @@ def chat(req: ChatRequest, user_id: str = Depends(get_user_id)) -> ChatResponse:
             "title": "New Chat",
             "user_id": user_id,
         }).execute()
+        if not resp.data:
+            raise HTTPException(status_code=500, detail="Failed to create chat session")
         session_id = resp.data[0]["id"]
     else:
         owner = supabase.table("chat_sessions").select("user_id").eq("id", session_id).execute().data

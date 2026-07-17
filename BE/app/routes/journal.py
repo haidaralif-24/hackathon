@@ -41,12 +41,16 @@ def create_entry(body: JournalEntryIn, user_id: str = Depends(get_user_id)):
             .eq("id", today_entries[0]["id"])
             .execute()
         )
+        if not resp.data:
+            raise HTTPException(status_code=500, detail="Failed to update journal entry")
         return resp.data[0]
     resp = supabase.table("journal_entries").insert({
         "mood": body.mood,
         "content": body.content,
         "user_id": user_id,
     }).execute()
+    if not resp.data:
+        raise HTTPException(status_code=500, detail="Failed to create journal entry")
     return resp.data[0]
 
 

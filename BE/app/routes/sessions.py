@@ -24,6 +24,15 @@ def list_sessions(user_id: str = Depends(get_user_id)):
     return resp.data or []
 
 
+@router.post("", response_model=ChatSessionOut)
+def create_session(user_id: str = Depends(get_user_id)):
+    supabase = get_supabase()
+    resp = supabase.table("chat_sessions").insert({"title": "New Chat", "user_id": user_id}).execute()
+    if not resp.data:
+        raise HTTPException(status_code=500, detail="Failed to create session")
+    return resp.data[0]
+
+
 @router.delete("/{session_id}")
 def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
     supabase = get_supabase()

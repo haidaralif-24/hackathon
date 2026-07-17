@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MessageCircle } from "lucide-react"
+import { MessageCircle, Bot, ChevronDown } from "lucide-react"
 import Button from "../components/Button"
 import { listJournalEntries, saveJournalEntry } from "../api/client"
 import type { JournalEntry, Mood } from "../types"
@@ -14,6 +14,25 @@ const MOODS: { value: Mood; emoji: string; labelKey: string }[] = [
   { value: "terrible", emoji: "😢", labelKey: "mood_terrible" },
 ]
 
+const TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
+
+const PRESET_PERSONA_DESC: Record<string, string> = {
+  tone_clinical: "Direct, clinical tone — concise and factual",
+  tone_empathetic: "Warm, approachable — empathetic and encouraging",
+  tone_straightforward: "Thorough, educational — explains reasoning",
+}
+
+function getInitialTone(): string {
+  const raw = localStorage.getItem("chat_tone")
+  if (!raw) return "tone_clinical"
+  if (TONE_KEYS.includes(raw)) return raw
+  if (raw === "Clinical" || raw === "Klinis") return "tone_clinical"
+  if (raw === "Empathetic" || raw === "Empati") return "tone_empathetic"
+  if (raw === "Straightforward" || raw === "Langsung") return "tone_straightforward"
+  if (raw === "Custom" || raw === "Kustom") return "tone_custom"
+  return "tone_clinical"
+}
+
 export default function Dashboard({ userName, userId }: { userName?: string; userId?: string }) {
   const { t } = useLanguage()
   const [input, setInput] = useState("")
@@ -21,6 +40,10 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const firstName = userName?.split(" ")[0] || "there"
   const [entries, setEntries] = useState<JournalEntry[]>([])
   const [moodText, setMoodText] = useState("")
+  const [tone, setTone] = useState(getInitialTone)
+  const [customName, setCustomName] = useState(() => localStorage.getItem("custom_persona_name") || "")
+  const [customDesc, setCustomDesc] = useState(() => localStorage.getItem("custom_persona_desc") || "")
+  const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     if (userId) listJournalEntries(userId).then(setEntries).catch(() => {})
@@ -29,11 +52,21 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
 
+  const personaLabel = tone === "tone_custom" && (customName || customDesc)
+    ? customName || "Custom"
+    : t(tone)
+  const personaDesc = tone === "tone_custom"
+    ? (customName || customDesc ? customDesc : t("home_persona_no_custom"))
+    : PRESET_PERSONA_DESC[tone] || ""
+
+  useEffect(() => {
+    localStorage.setItem("chat_tone", tone)
+  }, [tone])
+
   async function handleMoodClick(mood: Mood) {
     if (!userId) return
     try {
       const saved = await saveJournalEntry(mood, moodText, userId)
-      setMoodText("")
       setMoodText("")
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))
@@ -82,7 +115,7 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
         </div>
       </div>
 
-      <div className="mt-6 w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="mt-6 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Mood widget */}
         <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
           {todayEntry ? (
@@ -129,6 +162,62 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
           <Button className="mt-3" border="full" onClick={() => navigate("/health-record")}>
             {t("home_sync_button")}
           </Button>
+        </div>
+
+        {/* Persona card */}
+        <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
+          <div className="flex items-center gap-2">
+            <Bot className="w-4 h-4 text-[#2F6FED]" />
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">{t("home_ai_tone")}</p>
+          </div>
+          <div className="mt-2 space-y-2">
+            <div className="relative">
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                className="appearance-none bg-white border border-[#E5E7EB] rounded-lg pl-2 pr-6 py-1 text-xs text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer w-full"
+              >
+                {TONE_KEYS.map((k) => (
+                  <option key={k} value={k}>{t(k)}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-400 pointer-events-none" />
+            </div>
+            {tone === "tone_custom" ? (
+              <div className="space-y-1.5">
+                <input
+                  type="text"
+                  value={customName}
+                  onChange={(e) => setCustomName(e.target.value)}
+                  placeholder={t("account_persona_name_placeholder")}
+                  className="w-full px-2 py-1 text-xs border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent"
+                />
+                <textarea
+                  value={customDesc}
+                  onChange={(e) => setCustomDesc(e.target.value)}
+                  placeholder={t("account_persona_desc_placeholder")}
+                  rows={2}
+                  className="w-full px-2 py-1 text-xs border border-[#E5E7EB] rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-[#2F6FED] focus:border-transparent resize-none"
+                />
+                <button
+                  onClick={() => {
+                    localStorage.setItem("custom_persona_name", customName)
+                    localStorage.setItem("custom_persona_desc", customDesc)
+                    setSaved(true)
+                    setTimeout(() => setSaved(false), 2000)
+                  }}
+                  className="px-3 py-1 text-[11px] font-semibold bg-[#2F6FED] text-white rounded-lg hover:bg-[#1E4FBE] transition-colors cursor-pointer"
+                >
+                  {saved ? t("account_saved") : t("account_save_persona")}
+                </button>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-[#111827]">{personaLabel}</p>
+                <p className="text-xs text-[#6B7280]">{personaDesc}</p>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

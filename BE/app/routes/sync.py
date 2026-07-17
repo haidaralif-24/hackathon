@@ -112,6 +112,8 @@ def sync_mock():
             "source": "gdrive",
             "synced_at": rec["created_at"],
         }).execute()
+        if not file_resp.data:
+            continue
         file_id = file_resp.data[0]["id"]
 
         db.table("records").insert({

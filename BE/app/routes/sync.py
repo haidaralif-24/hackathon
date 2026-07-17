@@ -81,13 +81,14 @@ MOCK_RECORDS = [
             "date": "2026-05-12",
             "medications": [
                 {"name": "Amlodipin", "dosage": "5 mg", "frequency": "1x daily"},
+                {"name": "Amoxicillin", "dosage": "500 mg", "frequency": "3x daily (7 days)"},
             ],
             "lab_values": [
                 {"name": "CRP", "value": "12", "unit": "mg/L", "flag": "high"},
                 {"name": "LED", "value": "18", "unit": "mm/jam", "flag": "high"},
             ],
             "provider": "dr. Andi Pratama, Sp.PD",
-            "notes": "Diagnosis: Faringitis akut (J02.9). Riwayat hipertensi terkontrol, asma ringan.",
+            "notes": "Diagnosis: Faringitis akut (J02.9). Demam sejak 3 hari, nyeri tenggorokan, batuk kering. Riwayat hipertensi terkontrol, asma ringan (jarang kambuh). CRP dan LED meningkat mengindikasikan infeksi bakteri.",
         },
     },
 ]
@@ -121,4 +122,14 @@ def sync_mock():
         .order("created_at", desc=True)
         .execute()
     )
-    return {"files": all_records.data or [], "synced": inserted}
+    formatted = [
+        {
+            "id": r["id"],
+            "file_id": r["file_id"],
+            "filename": (r.get("files") or {}).get("filename"),
+            "created_at": r["created_at"],
+            "extracted": r["extracted_json"],
+        }
+        for r in (all_records.data or [])
+    ]
+    return {"files": formatted, "synced": inserted}

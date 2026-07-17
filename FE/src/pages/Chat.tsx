@@ -1,9 +1,21 @@
-import { useState, useRef, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
-import { sendChatMessage, listSessions, deleteSession, getSessionMessages } from "../api/client"
-import type { ChatSession, ChatTurn, Message } from "../types"
-import { Send, Loader2, ChevronDown, Plus, X, MessageCircle } from "lucide-react"
-import MapMessage from "../components/MapMessage"
+import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  sendChatMessage,
+  listSessions,
+  deleteSession,
+  getSessionMessages,
+} from "../api/client";
+import type { ChatSession, ChatTurn, Message } from "../types";
+import {
+  Send,
+  Loader2,
+  ChevronDown,
+  Plus,
+  X,
+  MessageCircle,
+} from "lucide-react";
+import MapMessage from "../components/MapMessage";
 
 function now(): string {
   return new Date().toLocaleTimeString([], {
@@ -67,7 +79,11 @@ function ChatBubbleAssistant({
   return (
     <div className="flex gap-3">
       <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-1">
-        <img src="/BenHealthy.png" alt="Ben" className="w-full h-full object-cover" />
+        <img
+          src="/BenHealthy.png"
+          alt="Ben"
+          className="w-full h-full object-cover"
+        />
       </div>
       <div className="max-w-[70%]">
         <div className="bg-white border border-[#E5E7EB] text-[#111827] rounded-2xl rounded-bl-md px-4 py-2.5 text-sm leading-relaxed shadow-sm">
@@ -177,7 +193,10 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
 
   useEffect(() => {
     if (lastUrgency) {
-      mapPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+      mapPanelRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }
   }, [lastUrgency]);
 
@@ -197,7 +216,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
       const s = await listSessions();
       setSessions(s);
       if (s.length > 0 && !activeSessionId) {
-        await selectSession(s[0].id)
+        await selectSession(s[0].id);
       }
     } catch {
       // supabase not configured — sessions disabled
@@ -205,26 +224,32 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   }
 
   async function selectSession(id: string) {
-    setActiveSessionId(id)
-    setMessages([])
-    setLastUrgency(null)
-    setLoadingMsgs(true)
+    setActiveSessionId(id);
+    setMessages([]);
+    setLastUrgency(null);
+    setLoadingMsgs(true);
     try {
-      const msgs = await getSessionMessages(id)
-      let foundUrgency: typeof lastUrgency = null
+      const msgs = await getSessionMessages(id);
+      let foundUrgency: typeof lastUrgency = null;
       const loaded = msgs.map((m) => {
-        let turn: ChatTurn | undefined
-        let content = m.content
+        let turn: ChatTurn | undefined;
+        let content = m.content;
         if (m.role === "assistant") {
           try {
-            const parsed = JSON.parse(m.content)
+            const parsed = JSON.parse(m.content);
             if (parsed.type) {
-              turn = parsed as ChatTurn
-              content = turn.type === "answer" ? turn.text
-                : turn.type === "question" ? turn.text
-                : turn.explanation
+              turn = parsed as ChatTurn;
+              content =
+                turn.type === "answer"
+                  ? turn.text
+                  : turn.type === "question"
+                    ? turn.text
+                    : turn.explanation;
               if (turn.type === "result") {
-                foundUrgency = { urgency: turn.urgency, explanation: turn.explanation }
+                foundUrgency = {
+                  urgency: turn.urgency,
+                  explanation: turn.explanation,
+                };
               }
             }
           } catch {}
@@ -233,13 +258,16 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           role: m.role as "user" | "assistant",
           content,
           turn,
-          timestamp: new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        }
-      })
-      setMessages(loaded)
-      setLastUrgency(foundUrgency)
+          timestamp: new Date(m.created_at).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+        };
+      });
+      setMessages(loaded);
+      setLastUrgency(foundUrgency);
     } catch {
-      setMessages([])
+      setMessages([]);
     } finally {
       setLoadingMsgs(false);
     }
@@ -465,7 +493,11 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           {loading && (
             <div className="flex gap-3">
               <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
-                <img src="/BenHealthy.png" alt="Ben" className="w-full h-full object-cover" />
+                <img
+                  src="/BenHealthy.png"
+                  alt="Ben"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                 <Loader2 className="w-4 h-4 animate-spin text-[#2F6FED]" />

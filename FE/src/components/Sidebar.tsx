@@ -1,6 +1,14 @@
-import { NavLink } from "react-router-dom"
-import { useState, useRef, useEffect } from "react"
-import { LayoutDashboard, MessageCircle, ClipboardList, User, ShieldPlus, BookHeart, ArrowRight } from "lucide-react"
+import { NavLink } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import {
+  LayoutDashboard,
+  MessageCircle,
+  ClipboardList,
+  User,
+  ShieldPlus,
+  BookHeart,
+  ArrowRight,
+} from "lucide-react";
 
 const links = [
   { to: "/", label: "Home", icon: LayoutDashboard },
@@ -8,26 +16,29 @@ const links = [
   { to: "/journal", label: "Journal", icon: BookHeart },
   { to: "/health-record", label: "Health Records", icon: ClipboardList },
   { to: "/account", label: "Account", icon: User },
-]
+];
 
 interface SidebarProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 export default function Sidebar({ open, onClose }: SidebarProps) {
-  const [overlayOpen, setOverlayOpen] = useState(false)
-  const overlayRef = useRef<HTMLDivElement>(null)
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (overlayRef.current && !overlayRef.current.contains(e.target as Node)) {
-        setOverlayOpen(false)
+      if (
+        overlayRef.current &&
+        !overlayRef.current.contains(e.target as Node)
+      ) {
+        setOverlayOpen(false);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -49,9 +60,16 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       {/* Icon strip — always visible on md+, hidden on phone */}
       <aside className="fixed left-0 top-0 z-50 w-16 h-screen bg-white border-r border-[#E5E7EB] flex-col hidden md:flex lg:hidden">
         <div className="h-16 flex items-center justify-center">
-          <button onClick={() => setOverlayOpen((prev) => !prev)} className="relative w-9 h-9 cursor-pointer group">
+          <button
+            onClick={() => setOverlayOpen((prev) => !prev)}
+            className="relative w-9 h-9 cursor-pointer group"
+          >
             <div className="absolute inset-0 rounded-lg overflow-hidden transition-opacity duration-300 group-hover:opacity-0">
-              <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+              <img
+                src="/BenHealthy.png"
+                alt="Ben Healthy"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="absolute inset-0 rounded-lg bg-[#2F6FED] flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
               <ArrowRight className="w-4 h-4 text-white" />
@@ -88,7 +106,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       >
         <div className="h-16 flex items-center gap-2.5 px-5">
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
-            <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            <img
+              src="/BenHealthy.png"
+              alt="Ben Healthy"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-base font-bold tracking-tight">
             <span className="text-[#111827]">Ben</span>
@@ -102,7 +124,10 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
               key={to}
               to={to}
               end={to === "/"}
-              onClick={() => { onClose(); setOverlayOpen(false) }}
+              onClick={() => {
+                onClose();
+                setOverlayOpen(false);
+              }}
               className={({ isActive }) =>
                 `relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                   isActive
@@ -129,7 +154,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-bold leading-tight">Your health, our priority.</h3>
+            <h3 className="text-sm font-bold leading-tight">
+              Your health, our priority.
+            </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
               Smart tools for a healthier you.
             </p>
@@ -141,7 +168,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       <aside className="fixed left-0 top-0 z-50 w-64 h-screen bg-white border-r border-[#E5E7EB] flex-col hidden lg:flex">
         <div className="h-16 flex items-center gap-2.5 px-5">
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
-            <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            <img
+              src="/BenHealthy.png"
+              alt="Ben Healthy"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-base font-bold tracking-tight">
             <span className="text-[#111827]">Ben</span>
@@ -182,7 +213,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-bold leading-tight">Your health, our priority.</h3>
+            <h3 className="text-sm font-bold leading-tight">
+              Your health, our priority.
+            </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
               Smart tools for a healthier you.
             </p>
@@ -198,7 +231,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       >
         <div className="h-16 flex items-center gap-2.5 px-5">
           <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
-            <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            <img
+              src="/BenHealthy.png"
+              alt="Ben Healthy"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-base font-bold tracking-tight">
             <span className="text-[#111827]">Ben</span>
@@ -239,7 +276,9 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center mb-3">
               <ShieldPlus className="w-5 h-5 text-white" />
             </div>
-            <h3 className="text-sm font-bold leading-tight">Your health, our priority.</h3>
+            <h3 className="text-sm font-bold leading-tight">
+              Your health, our priority.
+            </h3>
             <p className="text-xs text-white/70 mt-1 leading-relaxed">
               Smart tools for a healthier you.
             </p>
@@ -247,5 +286,5 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
         </div>
       </aside>
     </>
-  )
+  );
 }

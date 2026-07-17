@@ -71,13 +71,13 @@ export default function HealthRecord() {
       {/* Sync Control Bar */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <div className="flex items-center justify-between md:justify-start gap-4">
+          <div className="flex items-center justify-between md:justify-start gap-4 min-w-0">
             <span className="text-sm font-medium text-[#111827] shrink-0">Storage Sync (Manual)</span>
             {folderId ? (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-3 py-1.5">
-                  <FolderOpen className="w-4 h-4 text-[#2F6FED]" />
-                  <span className="text-sm font-medium text-[#111827]">{folderName || "Selected folder"}</span>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-3 py-1.5 min-w-0">
+                  <FolderOpen className="w-4 h-4 text-[#2F6FED] shrink-0" />
+                  <span className="text-sm font-medium text-[#111827] truncate">{folderName || "Selected folder"}</span>
                 </div>
                 <button onClick={() => { setFolderId(null); setFolderName(null) }} className="text-xs font-medium text-[#6B7280] hover:text-[#2F6FED] transition-colors">Change</button>
               </div>

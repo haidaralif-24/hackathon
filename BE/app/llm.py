@@ -100,7 +100,7 @@ def chat_completion(
         messages.extend(history)
     messages.append({"role": "user", "content": user})
 
-    kwargs = {"model": "llama-3.3-70b-versatile", "messages": messages}
+    kwargs = {"model": settings.llm_chat_model, "messages": messages}
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
 

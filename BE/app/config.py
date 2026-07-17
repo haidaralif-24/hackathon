@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     google_client_id: str = ""
     google_client_secret: str = ""
     google_api_key: str = ""
+    llm_vision_model: str = "llama-3.2-90b-vision-preview"
+    llm_chat_model: str = "llama-3.3-70b-versatile"
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8"}
 

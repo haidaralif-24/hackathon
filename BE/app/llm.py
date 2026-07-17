@@ -21,7 +21,7 @@ def ocr_image(image_bytes: bytes) -> str:
     data_uri = f"data:image/png;base64,{b64}"
 
     resp = _get_client().chat.completions.create(
-        model="llama-3.2-90b-vision-preview",
+        model=settings.llm_vision_model,
         messages=[
             {
                 "role": "user",
@@ -49,7 +49,7 @@ Output ONLY valid JSON matching this schema, NO prose, NO markdown:
 
 def structure_ocr(ocr_text: str) -> ExtractedRecord:
     resp = _get_client().chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=settings.llm_chat_model,
         messages=[
             {"role": "system", "content": EXTRACTION_PROMPT},
             {"role": "user", "content": ocr_text},
@@ -74,7 +74,7 @@ def analyze_image(image_bytes: bytes, prompt: str = "Describe what you see in th
     data_uri = f"data:image/png;base64,{b64}"
 
     resp = _get_client().chat.completions.create(
-        model="llama-3.2-90b-vision-preview",
+        model=settings.llm_vision_model,
         messages=[
             {"role": "system", "content": VLM_SYSTEM},
             {

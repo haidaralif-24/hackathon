@@ -6,8 +6,8 @@ from supabase import Client
 from app.database import get_supabase
 
 
-def get_user_id(authorization: str = Header(...)) -> str:
-    if not authorization.startswith("Bearer "):
+def get_user_id(authorization: str = Header(None)) -> str:
+    if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing or invalid Authorization header")
 
     token = authorization[7:]

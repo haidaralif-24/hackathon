@@ -7,7 +7,7 @@ export const id = {
   sidebar_your_health_priority: "Kesehatan Anda, prioritas kami.",
   sidebar_smart_tools: "Alat cerdas untuk hidup lebih sehat.",
 
-  nav_welcome: "Selamat Datang!",
+  nav_welcome: "Selamat Datang",
   nav_welcome_sub: "Apa yang bisa kami bantu hari ini?",
   nav_chat: "Asisten AI Chat",
   nav_chat_sub: "Dapatkan jawaban. Pahami kesehatan Anda. Temukan layanan kesehatan.",
@@ -139,7 +139,7 @@ export const en: Record<string, string> = {
   sidebar_your_health_priority: "Your health, our priority.",
   sidebar_smart_tools: "Smart tools for a healthier you.",
 
-  nav_welcome: "Welcome!",
+  nav_welcome: "Welcome",
   nav_welcome_sub: "Here's what you can do today.",
   nav_chat: "AI Chat Assistant",
   nav_chat_sub: "Get answers. Understand your health. Find care.",
@@ -166,7 +166,7 @@ export const en: Record<string, string> = {
   auth_signin_title: "Sign In",
   auth_signup_title: "Sign Up",
 
-  home_welcome: "Welcome,",
+  home_welcome: "Welcome",
   home_welcome_desc: "Not feeling well today? Tell me! I'll analyse your symptoms.",
   home_input_placeholder: "Consult your condition now!",
   home_sync_title: "Synchronize Record!",

@@ -38,7 +38,6 @@ function AppLayout({ session }: { session: Session }) {
             </main>
           </div>
         </div>
-      </div>
     </BrowserRouter>
   )
 }

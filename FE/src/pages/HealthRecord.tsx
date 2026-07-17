@@ -12,44 +12,6 @@ const TAG_STYLES: Record<string, { bg: string; text: string; icon: typeof FlaskR
   vital_signs: { bg: "bg-[#EDE4FF]", text: "text-[#7C3AED]", icon: HeartPulse },
 }
 
-const FALLBACK_RECORDS = [
-  {
-    id: "demo-1",
-    filename: "Complete Blood Count (CBC)",
-    created_at: "2026-05-12T10:30:00",
-    extracted: {
-      document_type: "lab_result",
-      lab_values: [
-        { name: "WBC", value: "7.2", unit: "x10³/µL" },
-        { name: "RBC", value: "5.1", unit: "x10⁶/µL" },
-        { name: "Hemoglobin", value: "14.8", unit: "g/dL" },
-      ],
-    },
-  },
-  {
-    id: "demo-2",
-    filename: "Amoxicillin 500mg",
-    created_at: "2026-05-10T14:15:00",
-    extracted: {
-      document_type: "prescription",
-      medications: [{ name: "Amoxicillin", dosage: "500 mg", frequency: "3x daily" }],
-    },
-  },
-  {
-    id: "demo-3",
-    filename: "Routine Checkup",
-    created_at: "2026-05-08T09:00:00",
-    extracted: {
-      document_type: "vital_signs",
-      lab_values: [
-        { name: "Blood Pressure", value: "120/80", unit: "mmHg" },
-        { name: "Heart Rate", value: "72", unit: "bpm" },
-        { name: "Temperature", value: "98.6", unit: "°F" },
-      ],
-    },
-  },
-]
-
 function getTag(docType: string) {
   return TAG_STYLES[docType] || { bg: "bg-[#EDE4FF]", text: "text-[#7C3AED]", icon: HeartPulse }
 }
@@ -66,20 +28,13 @@ function formatTime(iso: string) {
 export default function HealthRecord() {
   const { t } = useLanguage()
   const [records, setRecords] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [syncing, setSyncing] = useState(false)
-  const [syncStatus, setSyncStatus] = useState(`${t("hr_last_synced")}: May 12, 2026 at 10:30 AM`)
+  const [synced, setSynced] = useState(false)
+  const [syncStatus, setSyncStatus] = useState(`${t("hr_last_synced")}: —`)
   const [folderId, setFolderId] = useState(() => localStorage.getItem(STORAGE_KEY))
   const [folderName, setFolderName] = useState(() => localStorage.getItem(`${STORAGE_KEY}_name`))
   const [filter, setFilter] = useState(t("hr_all_types"))
-
-  useEffect(() => {
-    fetchRecords().then((data) => {
-      setRecords(data.length ? data : FALLBACK_RECORDS)
-    }).catch(() => {
-      setRecords(FALLBACK_RECORDS)
-    }).finally(() => setLoading(false))
-  }, [])
 
   useEffect(() => {
     if (folderId) localStorage.setItem(STORAGE_KEY, folderId)
@@ -97,6 +52,9 @@ export default function HealthRecord() {
       const result = await runSync()
       const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
       setSyncStatus(`${t("hr_last_synced")}: ${now} (${result.synced} ${t("hr_new_files")})`)
+      const data = await fetchRecords()
+      setRecords(data)
+      setSynced(true)
     } catch {
       setSyncStatus(t("hr_sync_failed"))
     } finally {
@@ -159,94 +117,98 @@ export default function HealthRecord() {
       )}
 
       {/* Timeline Section Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-semibold text-[#111827]">{t("hr_your_timeline")}</h2>
-          <p className="text-sm text-[#6B7280]">{t("hr_timeline_desc")}</p>
-        </div>
-        <div className="relative">
-          <select value={filter} onChange={(e) => setFilter(e.target.value)}
-            className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
-          >
-            <option>{t("hr_all_types")}</option>
-            {docTypes.map((t) => (
-              <option key={t}>{t.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}</option>
-            ))}
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
-        </div>
-      </div>
+      {synced && (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-[#111827]">{t("hr_your_timeline")}</h2>
+              <p className="text-sm text-[#6B7280]">{t("hr_timeline_desc")}</p>
+            </div>
+            <div className="relative">
+              <select value={filter} onChange={(e) => setFilter(e.target.value)}
+                className="appearance-none bg-white border border-[#E5E7EB] rounded-lg px-3 py-1.5 pr-7 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#2F6FED] cursor-pointer"
+              >
+                <option>{t("hr_all_types")}</option>
+                {docTypes.map((t) => (
+                  <option key={t}>{t.replace("_", " ").replace(/\b\w/g, (c) => c.toUpperCase())}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+            </div>
+          </div>
 
-      {/* Timeline Entries */}
-      {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <p className="text-sm text-[#6B7280] text-center py-20">{t("hr_no_records")}</p>
-      ) : (
-        <div className="space-y-6">
-          {filtered.map((rec, idx) => {
-            const e = rec.extracted || {}
-            const docType = e.document_type || "other"
-            const { bg, text, icon: Icon } = getTag(docType)
+          {/* Timeline Entries */}
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <p className="text-sm text-[#6B7280] text-center py-20">{t("hr_no_records")}</p>
+          ) : (
+            <div className="space-y-6">
+              {filtered.map((rec, idx) => {
+                const e = rec.extracted || {}
+                const docType = e.document_type || "other"
+                const { bg, text, icon: Icon } = getTag(docType)
 
-            const details: { label: string; value: string }[] = []
-            if (e.medications) {
-              for (const med of e.medications) {
-                details.push({ label: med.name || "Medication", value: `${med.dosage || ""} ${med.frequency || ""}`.trim() })
-              }
-            }
-            if (e.lab_values) {
-              for (const lab of e.lab_values) {
-                const flag = lab.flag ? ` (${lab.flag})` : ""
-                details.push({ label: lab.name || "Lab", value: `${lab.value || ""}${lab.unit || ""}${flag}` })
-              }
-            }
+                const details: { label: string; value: string }[] = []
+                if (e.medications) {
+                  for (const med of e.medications) {
+                    details.push({ label: med.name || "Medication", value: `${med.dosage || ""} ${med.frequency || ""}`.trim() })
+                  }
+                }
+                if (e.lab_values) {
+                  for (const lab of e.lab_values) {
+                    const flag = lab.flag ? ` (${lab.flag})` : ""
+                    details.push({ label: lab.name || "Lab", value: `${lab.value || ""}${lab.unit || ""}${flag}` })
+                  }
+                }
 
-            return (
-              <div key={rec.id} className="flex gap-4">
-                <div className="flex flex-col items-center">
-                  <div className={`w-9 h-9 rounded-full ${bg} flex items-center justify-center shrink-0`}>
-                    <Icon className={`w-4 h-4 ${text}`} />
-                  </div>
-                  {idx < filtered.length - 1 && <div className="w-px flex-1 bg-[#E5E7EB] mt-1" />}
-                </div>
-
-                <div className="flex-1 min-w-0 pb-6">
-                  <p className="text-xs text-[#6B7280] mb-1">{formatDate(rec.created_at)} — {formatTime(rec.created_at)}</p>
-                  <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 shadow-sm relative">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-[#111827]">
-                          {rec.filename || t("nav_health_record")}
-                        </span>
-                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${bg} ${text}`}>
-                          {docType.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
-                        </span>
+                return (
+                  <div key={rec.id} className="flex gap-4">
+                    <div className="flex flex-col items-center">
+                      <div className={`w-9 h-9 rounded-full ${bg} flex items-center justify-center shrink-0`}>
+                        <Icon className={`w-4 h-4 ${text}`} />
                       </div>
-                      <button className="text-[#6B7280] hover:text-[#111827] cursor-pointer" aria-label="More options">
-                        <MoreVertical className="w-4 h-4" />
-                      </button>
+                      {idx < filtered.length - 1 && <div className="w-px flex-1 bg-[#E5E7EB] mt-1" />}
                     </div>
-                    {details.length > 0 ? (
-                      <div className="space-y-1.5">
-                        {details.map((d, i) => (
-                          <div key={i} className="flex items-center gap-2 text-sm">
-                            <span className="text-[#6B7280] w-32 shrink-0 truncate">{d.label}</span>
-                            <span className="text-[#111827] font-medium">{d.value}</span>
+
+                    <div className="flex-1 min-w-0 pb-6">
+                      <p className="text-xs text-[#6B7280] mb-1">{formatDate(rec.created_at)} — {formatTime(rec.created_at)}</p>
+                      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 shadow-sm relative">
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-[#111827]">
+                              {rec.filename || t("nav_health_record")}
+                            </span>
+                            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${bg} ${text}`}>
+                              {docType.replace("_", " ").replace(/\b\w/g, (c: string) => c.toUpperCase())}
+                            </span>
                           </div>
-                        ))}
+                          <button className="text-[#6B7280] hover:text-[#111827] cursor-pointer" aria-label="More options">
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                        </div>
+                        {details.length > 0 ? (
+                          <div className="space-y-1.5">
+                            {details.map((d, i) => (
+                              <div key={i} className="flex items-center gap-2 text-sm">
+                                <span className="text-[#6B7280] w-32 shrink-0 truncate">{d.label}</span>
+                                <span className="text-[#111827] font-medium">{d.value}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-[#6B7280]">{e.notes || t("hr_no_structured_data")}</p>
+                        )}
                       </div>
-                    ) : (
-                      <p className="text-sm text-[#6B7280]">{e.notes || t("hr_no_structured_data")}</p>
-                    )}
+                    </div>
                   </div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
+                )
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

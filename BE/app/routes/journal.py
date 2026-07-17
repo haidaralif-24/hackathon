@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app.database import get_supabase
@@ -13,7 +13,6 @@ router = APIRouter(prefix="/journal", tags=["journal"])
 class JournalEntryIn(BaseModel):
     mood: str
     content: str = ""
-    user_id: str
 
 
 class JournalEntryOut(BaseModel):
@@ -29,7 +28,6 @@ def create_entry(body: JournalEntryIn):
     today_entries = (
         supabase.table("journal_entries")
         .select("id")
-        .eq("user_id", body.user_id)
         .gte("created_at", date.today().isoformat())
         .execute()
         .data
@@ -45,21 +43,16 @@ def create_entry(body: JournalEntryIn):
     resp = supabase.table("journal_entries").insert({
         "mood": body.mood,
         "content": body.content,
-        "user_id": body.user_id,
     }).execute()
     return resp.data[0]
 
 
 @router.get("", response_model=list[JournalEntryOut])
-def list_entries(
-    user_id: str = Query(...),
-    limit: int = Query(50),
-):
+def list_entries(limit: int = 50):
     supabase = get_supabase()
     resp = (
         supabase.table("journal_entries")
         .select("*")
-        .eq("user_id", user_id)
         .order("created_at", desc=True)
         .limit(limit)
         .execute()
@@ -68,10 +61,7 @@ def list_entries(
 
 
 @router.delete("/{entry_id}")
-def delete_entry(entry_id: str, user_id: str = Query(...)):
+def delete_entry(entry_id: str):
     supabase = get_supabase()
-    entry = supabase.table("journal_entries").select("user_id").eq("id", entry_id).execute().data
-    if not entry or entry[0]["user_id"] != user_id:
-        raise HTTPException(status_code=403, detail="Not your entry")
     supabase.table("journal_entries").delete().eq("id", entry_id).execute()
     return {"deleted": True}

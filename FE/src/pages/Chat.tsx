@@ -167,10 +167,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   }, []);
 
   useEffect(() => {
-    if (
-      messages.length > 0 &&
-      messages[messages.length - 1].role === "assistant"
-    ) {
+    if (messages.length > 0) {
       messagesRef.current?.scrollTo({
         top: messagesRef.current.scrollHeight,
         behavior: "smooth",
@@ -180,10 +177,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
 
   useEffect(() => {
     if (lastUrgency) {
-      mapPanelRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
+      mapPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
     }
   }, [lastUrgency]);
 
@@ -312,10 +306,9 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
           explanation: turn.explanation,
         });
       }
-      if (!activeSessionId && !isInitial) {
-        await loadSessions();
-      } else if (isInitial) {
-        await loadSessions();
+      if (!activeSessionId) {
+        const s = await listSessions();
+        setSessions(s);
       }
     } catch {
       setMessages((prev) => [

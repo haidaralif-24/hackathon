@@ -69,33 +69,35 @@ export default function HealthRecord() {
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
       {/* Sync Control Bar */}
-      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-[#111827]">Storage Sync (Manual)</span>
-          {folderId ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-3 py-1.5">
-                <FolderOpen className="w-4 h-4 text-[#2F6FED]" />
-                <span className="text-sm font-medium text-[#111827]">{folderName || "Selected folder"}</span>
+      <div className="bg-white rounded-2xl border border-[#E5E7EB] p-5 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="flex items-center justify-between md:justify-start gap-4">
+            <span className="text-sm font-medium text-[#111827] shrink-0">Storage Sync (Manual)</span>
+            {folderId ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-gray-100 rounded-lg px-3 py-1.5">
+                  <FolderOpen className="w-4 h-4 text-[#2F6FED]" />
+                  <span className="text-sm font-medium text-[#111827]">{folderName || "Selected folder"}</span>
+                </div>
+                <button onClick={() => { setFolderId(null); setFolderName(null) }} className="text-xs font-medium text-[#6B7280] hover:text-[#2F6FED] transition-colors">Change</button>
               </div>
-              <button onClick={() => { setFolderId(null); setFolderName(null) }} className="text-xs font-medium text-[#6B7280] hover:text-[#2F6FED] transition-colors">Change</button>
+            ) : (
+              <p className="text-sm text-[#6B7280]">No folder selected</p>
+            )}
+          </div>
+          <div className="flex items-center justify-between md:justify-end gap-3">
+            {folderId && (
+              <button onClick={handleSync} disabled={syncing}
+                className="flex items-center gap-2 bg-[#2F6FED] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+                {syncing ? "Syncing..." : "Sync Now"}
+              </button>
+            )}
+            <div className="flex items-center gap-2 text-sm">
+              <CheckCircle className="w-4 h-4 text-[#16A34A]" />
+              <span className="text-[#6B7280]">{syncStatus}</span>
             </div>
-          ) : (
-            <p className="text-sm text-[#6B7280]">No folder selected</p>
-          )}
-        </div>
-        <div className="flex items-center gap-3">
-          {folderId && (
-            <button onClick={handleSync} disabled={syncing}
-              className="flex items-center gap-2 bg-[#2F6FED] text-white text-sm font-medium px-4 py-2 rounded-full hover:bg-[#1E4FBE] disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
-            >
-              {syncing ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
-              {syncing ? "Syncing..." : "Sync Now"}
-            </button>
-          )}
-          <div className="flex items-center gap-2 text-sm">
-            <CheckCircle className="w-4 h-4 text-[#16A34A]" />
-            <span className="text-[#6B7280]">{syncStatus}</span>
           </div>
         </div>
       </div>

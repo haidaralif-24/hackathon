@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { ChevronDown, ChevronUp, AlertTriangle } from "lucide-react"
+import { ChevronDown, ChevronUp, AlertTriangle, Loader2 } from "lucide-react"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
 import { API_BASE } from "../api/client"
@@ -37,6 +37,7 @@ function createColoredIcon(n: number, color: string) {
 
 export default function MapMessage({ collapsed, onToggle, urgency, explanation }: MapMessageProps) {
   const [facilities, setFacilities] = useState<Facility[]>([])
+  const [loadingFacilities, setLoadingFacilities] = useState(false)
   const [userPos, setUserPos] = useState<{ lat: number; lng: number } | null>(null)
   const mapRef = useRef<HTMLDivElement>(null)
   const mapInstance = useRef<L.Map | null>(null)
@@ -51,6 +52,8 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
 
   useEffect(() => {
     if (!urgency) return
+    setLoadingFacilities(true)
+    setFacilities([])
     const params = new URLSearchParams({ urgency })
     if (userPos) {
       params.set("lat", userPos.lat.toString())
@@ -60,6 +63,7 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
       .then((r) => r.json())
       .then((data) => setFacilities(data.facilities ?? []))
       .catch(() => setFacilities([]))
+      .finally(() => setLoadingFacilities(false))
   }, [urgency, userPos])
 
   const center = userPos || { lat: -6.2088, lng: 106.8456 }
@@ -162,10 +166,15 @@ export default function MapMessage({ collapsed, onToggle, urgency, explanation }
           </div>
 
           <div className="space-y-3">
-            {facilities.length === 0 && (
+            {loadingFacilities && (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-5 h-5 animate-spin text-[#2F6FED]" />
+              </div>
+            )}
+            {!loadingFacilities && facilities.length === 0 && (
               <p className="text-xs text-gray-400">No facilities found for this urgency level.</p>
             )}
-            {facilities.map((f, i) => (
+            {!loadingFacilities && facilities.map((f, i) => (
               <div key={i} className="flex gap-2.5">
                 <div className="w-6 h-6 rounded-full bg-[#2F6FED] text-white text-[11px] font-bold flex items-center justify-center shrink-0 mt-0.5">
                   {i + 1}

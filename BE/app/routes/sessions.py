@@ -50,7 +50,7 @@ def get_messages(session_id: str):
         supabase.table("chat_messages")
         .select("*")
         .eq("session_id", session_id)
-        .order("created_at")
+        .order("created_at", asc=True)
         .execute()
     )
     return resp.data or []

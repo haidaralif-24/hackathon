@@ -9,6 +9,9 @@ PERSONA_MAP = {
     "straightforward": "Respond in a direct, clinical tone — concise, factual, minimal warmth.",
     "friendly": "Respond in a warm, approachable tone — empathetic and encouraging.",
     "detailed": "Respond in a thorough, educational tone — explain reasoning and provide context.",
+    "Clinical": "Respond in a direct, clinical tone — concise, factual, minimal warmth.",
+    "Empathetic": "Respond in a warm, approachable tone — empathetic and encouraging.",
+    "Straightforward": "Respond in a thorough, educational tone — explain reasoning and provide context, balanced and accessible.",
 }
 
 SOURCES = """Trusted sources (reference these by name in explanations):
@@ -53,7 +56,7 @@ Guidelines:
 - Do NOT invent citations, URLs, or references. Only cite sources listed in the Trusted Sources section by name.
 - If you do not know the answer or lack sufficient information, say so directly — do not make one up. Suggest the user consult a healthcare provider or check reliable sources.
 - When providing a "result", the "specialist" field must ONLY contain a real medical specialty (e.g. "cardiologist", "dermatologist") if you are confident. Set it to null if you are unsure. NEVER set "specialist" to "Unknown", "unknown", or any placeholder text.
-- Persona: {persona}"""
+- You MUST adopt the following response style and persona in every message: {persona}"""
 
 
 def parse_turn(data: dict) -> AnswerTurn | QuestionTurn | ResultTurn:

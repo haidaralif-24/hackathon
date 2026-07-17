@@ -211,9 +211,17 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     }
   }, []);
 
-  const persona = tone === t("tone_custom")
-    ? `${localStorage.getItem("custom_persona_name") || t("tone_custom")}: ${localStorage.getItem("custom_persona_desc") || ""}`
-    : tone;
+  const persona = (() => {
+    if (tone === t("tone_custom")) {
+      const name = localStorage.getItem("custom_persona_name") || t("tone_custom")
+      const desc = localStorage.getItem("custom_persona_desc") || ""
+      return `${name}: ${desc}`
+    }
+    if (tone === t("tone_clinical")) return "Respond in a direct, clinical tone — concise, factual, minimal warmth."
+    if (tone === t("tone_empathetic")) return "Respond in a warm, approachable tone — empathetic and encouraging."
+    if (tone === t("tone_straightforward")) return "Respond in a thorough, educational tone — explain reasoning and provide context, balanced and accessible."
+    return tone
+  })()
 
   async function loadSessions() {
     try {

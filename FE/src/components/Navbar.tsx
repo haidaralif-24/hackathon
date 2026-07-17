@@ -72,7 +72,7 @@ export default function Navbar({
         </a>
         <div className="flex-1 lg:flex-none">
           <h1 className="text-xl font-bold text-[#111827] ">
-            {meta.title}
+            {t(meta.titleKey)}
             {location.pathname === "/" && (
               <>
                 <span className="inline md:hidden">, {firstName}!</span>
@@ -81,7 +81,7 @@ export default function Navbar({
             )}
           </h1>
           <p className="text-xs text-[#6B7280] hidden md:block">
-            {meta.subtitle}
+            {t(meta.subKey)}
           </p>
         </div>
         <div className="flex items-center gap-4">

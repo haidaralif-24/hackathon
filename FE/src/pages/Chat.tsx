@@ -148,7 +148,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingMsgs, setLoadingMsgs] = useState(false);
-  const [tone, setTone] = useState("Clinical");
+  const [tone, setTone] = useState(() => localStorage.getItem("chat_tone") || "Clinical");
   const [mapCollapsed, setMapCollapsed] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
@@ -209,7 +209,9 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     }
   }, []);
 
-  const persona = "empathetic";
+  const persona = tone === "Custom"
+    ? `${localStorage.getItem("custom_persona_name") || "Custom"}: ${localStorage.getItem("custom_persona_desc") || "Respond naturally"}`
+    : tone;
 
   async function loadSessions() {
     try {

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MessageCircle } from "lucide-react"
+import { MessageCircle, Bot } from "lucide-react"
 import Button from "../components/Button"
 import { listJournalEntries, saveJournalEntry } from "../api/client"
 import type { JournalEntry, Mood } from "../types"
@@ -13,6 +13,54 @@ const MOODS: { value: Mood; emoji: string; labelKey: string }[] = [
   { value: "bad", emoji: "😔", labelKey: "mood_bad" },
   { value: "terrible", emoji: "😢", labelKey: "mood_terrible" },
 ]
+
+const TONE_KEYS = ["tone_clinical", "tone_empathetic", "tone_straightforward", "tone_custom"]
+
+const PRESET_PERSONA_DESC: Record<string, string> = {
+  tone_clinical: "Direct, clinical tone — concise and factual",
+  tone_empathetic: "Warm, approachable — empathetic and encouraging",
+  tone_straightforward: "Thorough, educational — explains reasoning",
+}
+
+function getPersonaInfo(t: (k: string) => string): {
+  label: string
+  desc: string
+  isCustom: boolean
+  isConfigured: boolean
+} {
+  const raw = localStorage.getItem("chat_tone")
+  let key = "tone_clinical"
+
+  if (raw) {
+    if (TONE_KEYS.includes(raw)) {
+      key = raw
+    } else if (raw === "Clinical" || raw === "Klinis") {
+      key = "tone_clinical"
+    } else if (raw === "Empathetic" || raw === "Empati") {
+      key = "tone_empathetic"
+    } else if (raw === "Straightforward" || raw === "Langsung") {
+      key = "tone_straightforward"
+    } else if (raw === "Custom" || raw === "Kustom") {
+      key = "tone_custom"
+    }
+  }
+
+  if (key === "tone_custom") {
+    const name = localStorage.getItem("custom_persona_name")
+    const desc = localStorage.getItem("custom_persona_desc")
+    if (name || desc) {
+      return { label: name || "Custom", desc: desc || "", isCustom: true, isConfigured: true }
+    }
+    return { label: t("tone_custom"), desc: t("home_persona_no_custom"), isCustom: true, isConfigured: false }
+  }
+
+  return {
+    label: t(key),
+    desc: PRESET_PERSONA_DESC[key] || "",
+    isCustom: false,
+    isConfigured: true,
+  }
+}
 
 export default function Dashboard({ userName, userId }: { userName?: string; userId?: string }) {
   const { t } = useLanguage()
@@ -29,11 +77,12 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
 
+  const persona = getPersonaInfo(t)
+
   async function handleMoodClick(mood: Mood) {
     if (!userId) return
     try {
       const saved = await saveJournalEntry(mood, moodText, userId)
-      setMoodText("")
       setMoodText("")
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))
@@ -82,7 +131,7 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
         </div>
       </div>
 
-      <div className="mt-6 w-full max-w-2xl grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="mt-6 w-full max-w-5xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Mood widget */}
         <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
           {todayEntry ? (
@@ -129,6 +178,26 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
           <Button className="mt-3" border="full" onClick={() => navigate("/health-record")}>
             {t("home_sync_button")}
           </Button>
+        </div>
+
+        {/* Persona card */}
+        <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
+          <div className="flex items-center gap-2">
+            <Bot className="w-4 h-4 text-[#2F6FED]" />
+            <p className="text-xs font-semibold text-[#6B7280] uppercase tracking-wider">{t("home_ai_tone")}</p>
+          </div>
+          <div className="mt-2">
+            <p className="text-sm font-semibold text-[#111827]">{persona.label}</p>
+            <p className="text-xs text-[#6B7280] mt-1">{persona.desc}</p>
+            {persona.isCustom && !persona.isConfigured && (
+              <button
+                onClick={() => navigate("/account")}
+                className="mt-2 text-xs font-medium text-[#2F6FED] hover:underline cursor-pointer"
+              >
+                {t("account_preferences")} →
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

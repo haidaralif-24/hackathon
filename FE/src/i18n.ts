@@ -43,6 +43,8 @@ export const id = {
   home_how_feeling: "Apa yang Anda rasakan?",
   home_mood_placeholder: "Tulis sesuatu...",
   home_today_mood: "Suasana Hati Hari Ini",
+  home_ai_tone: "Nada AI Chat",
+  home_persona_no_custom: "Belum dikonfigurasi — atur di Akun",
 
   chat_general: "Q&A Umum",
   chat_triage: "Triage Gejala",
@@ -175,6 +177,8 @@ export const en: Record<string, string> = {
   home_how_feeling: "How are you feeling?",
   home_mood_placeholder: "Write something...",
   home_today_mood: "Today's Mood",
+  home_ai_tone: "AI Chat Tone",
+  home_persona_no_custom: "Not configured — set up in Account",
 
   chat_general: "General Q&A",
   chat_triage: "Symptom Triage",

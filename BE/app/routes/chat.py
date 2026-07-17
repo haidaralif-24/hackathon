@@ -69,9 +69,7 @@ def chat(req: ChatRequest) -> ChatTurn:
         "content": content,
     }).execute()
 
-    if message_count <= 1:
-        title = req.message[:50]
-        supabase.table("chat_sessions").update({"title": title}).eq("id", session_id).execute()
+    supabase.table("chat_sessions").update({"title": req.message[:50]}).eq("id", session_id).eq("title", "New Chat").execute()
 
     supabase.table("chat_sessions").update({"updated_at": datetime.now(timezone.utc).isoformat()}).eq("id", session_id).execute()
 

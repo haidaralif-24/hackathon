@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 
 from app.database import get_supabase
@@ -34,7 +36,7 @@ def update_session(session_id: str, body: ChatSessionUpdate):
     supabase = get_supabase()
     resp = (
         supabase.table("chat_sessions")
-        .update({"title": body.title, "updated_at": "now()"})
+        .update({"title": body.title, "updated_at": datetime.now(timezone.utc).isoformat()})
         .eq("id", session_id)
         .execute()
     )

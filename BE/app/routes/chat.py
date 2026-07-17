@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Union
 
 from fastapi import APIRouter, HTTPException
@@ -72,6 +73,6 @@ def chat(req: ChatRequest) -> ChatTurn:
         title = req.message[:50]
         supabase.table("chat_sessions").update({"title": title}).eq("id", session_id).execute()
 
-    supabase.table("chat_sessions").update({"updated_at": "now()"}).eq("id", session_id).execute()
+    supabase.table("chat_sessions").update({"updated_at": datetime.now(timezone.utc).isoformat()}).eq("id", session_id).execute()
 
     return turn

@@ -52,6 +52,7 @@ export default function HealthRecord() {
       const result = await runSync()
       const now = new Date().toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })
       setSyncStatus(`Last synced: ${now} (${result.synced} new file${result.synced !== 1 ? "s" : ""})`)
+      setRecords(result.files)
     } catch {
       setSyncStatus("Sync failed")
     } finally {

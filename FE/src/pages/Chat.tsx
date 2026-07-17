@@ -454,6 +454,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
                 <option>{t("tone_clinical")}</option>
                 <option>{t("tone_empathetic")}</option>
                 <option>{t("tone_straightforward")}</option>
+                <option>{t("tone_custom")}</option>
               </select>
               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
             </div>

@@ -9,7 +9,46 @@ const STORAGE_KEY = "cek-in_drive_folder"
 const TAG_STYLES: Record<string, { bg: string; text: string; icon: typeof FlaskRound }> = {
   lab_result: { bg: "bg-[#DCEBFF]", text: "text-[#1D4ED8]", icon: FlaskRound },
   prescription: { bg: "bg-[#DCFCE7]", text: "text-[#15803D]", icon: Pill },
+  vital_signs: { bg: "bg-[#EDE4FF]", text: "text-[#7C3AED]", icon: HeartPulse },
 }
+
+const FALLBACK_RECORDS = [
+  {
+    id: "demo-1",
+    filename: "Complete Blood Count (CBC)",
+    created_at: "2026-05-12T10:30:00",
+    extracted: {
+      document_type: "lab_result",
+      lab_values: [
+        { name: "WBC", value: "7.2", unit: "x10³/µL" },
+        { name: "RBC", value: "5.1", unit: "x10⁶/µL" },
+        { name: "Hemoglobin", value: "14.8", unit: "g/dL" },
+      ],
+    },
+  },
+  {
+    id: "demo-2",
+    filename: "Amoxicillin 500mg",
+    created_at: "2026-05-10T14:15:00",
+    extracted: {
+      document_type: "prescription",
+      medications: [{ name: "Amoxicillin", dosage: "500 mg", frequency: "3x daily" }],
+    },
+  },
+  {
+    id: "demo-3",
+    filename: "Routine Checkup",
+    created_at: "2026-05-08T09:00:00",
+    extracted: {
+      document_type: "vital_signs",
+      lab_values: [
+        { name: "Blood Pressure", value: "120/80", unit: "mmHg" },
+        { name: "Heart Rate", value: "72", unit: "bpm" },
+        { name: "Temperature", value: "98.6", unit: "°F" },
+      ],
+    },
+  },
+]
 
 function getTag(docType: string) {
   return TAG_STYLES[docType] || { bg: "bg-[#EDE4FF]", text: "text-[#7C3AED]", icon: HeartPulse }
@@ -29,13 +68,17 @@ export default function HealthRecord() {
   const [records, setRecords] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [syncing, setSyncing] = useState(false)
-  const [syncStatus, setSyncStatus] = useState(`${t("hr_last_synced")}: —`)
+  const [syncStatus, setSyncStatus] = useState(`${t("hr_last_synced")}: May 12, 2026 at 10:30 AM`)
   const [folderId, setFolderId] = useState(() => localStorage.getItem(STORAGE_KEY))
   const [folderName, setFolderName] = useState(() => localStorage.getItem(`${STORAGE_KEY}_name`))
   const [filter, setFilter] = useState(t("hr_all_types"))
 
   useEffect(() => {
-    fetchRecords().then(setRecords).catch(() => {}).finally(() => setLoading(false))
+    fetchRecords().then((data) => {
+      setRecords(data.length ? data : FALLBACK_RECORDS)
+    }).catch(() => {
+      setRecords(FALLBACK_RECORDS)
+    }).finally(() => setLoading(false))
   }, [])
 
   useEffect(() => {

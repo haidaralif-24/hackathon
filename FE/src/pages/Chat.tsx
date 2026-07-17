@@ -252,7 +252,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     setLastUrgency(null);
     inputRef.current?.focus({ preventScroll: true });
     if (initialMessage) {
-      await handleSend(initialMessage, true);
+      await handleSend(initialMessage);
     }
   }
 
@@ -270,7 +270,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     }
   }
 
-  async function handleSend(text: string, isInitial?: boolean) {
+  async function handleSend(text: string) {
     if (!text.trim() || loading) return;
     const ts = now();
     setMessages((prev) => [

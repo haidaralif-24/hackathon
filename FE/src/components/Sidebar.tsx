@@ -59,7 +59,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </button>
         </div>
         <nav className="flex-1 px-3 py-4 flex flex-col items-center space-y-1">
-          {links.map(({ to, label, icon: Icon }) => (
+          {links.map(({ to, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

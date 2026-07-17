@@ -110,7 +110,7 @@ export default function Dashboard({ userName, userId }: { userName?: string; use
         <div className="bg-white rounded-2xl shadow-[0_1px_3px_rgba(16,24,40,0.06)] border border-[#E5E7EB] p-5">
           <span className="text-sm font-semibold text-gray-900">Synchronize Record!</span>
           <p className="text-xs text-gray-500 mt-1">Let me know your record for more relevant analysis.</p>
-          <Button className="mt-3" border="full">
+          <Button className="mt-3" border="full" onClick={() => navigate("/health-record")}>
             Sync Now
           </Button>
         </div>

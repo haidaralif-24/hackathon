@@ -1,18 +1,15 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Union
 
 from fastapi import APIRouter, HTTPException
 
 from app.config import settings
 from app.database import get_supabase
-from app.schemas import AnswerTurn, ChatRequest, ChatResponse, QuestionTurn, ResultTurn
+from app.schemas import ChatRequest, ChatResponse
 from app.services.triage import build_health_context, run_triage
 
 router = APIRouter(prefix="/chat", tags=["chat"])
-
-ChatTurn = Union[AnswerTurn, QuestionTurn, ResultTurn]
 
 
 @router.post("", response_model=ChatResponse)

@@ -103,19 +103,19 @@ export default function Journal({ userId }: { userId?: string }) {
               )}
             </div>
 
-            <div className="flex gap-3 justify-center">
+            <div className="flex flex-wrap gap-2 justify-center">
               {MOODS.map((m) => (
                 <button
                   key={m.value}
                   onClick={() => setMood(m.value)}
-                  className={`flex flex-col items-center gap-1 px-4 py-3 rounded-xl border-2 transition-all ${
+                  className={`flex flex-col items-center gap-1 px-3 md:px-4 py-2 md:py-3 rounded-xl border-2 transition-all flex-1 min-w-[60px] max-w-[80px] md:flex-none md:min-w-0 md:max-w-none ${
                     mood === m.value
                       ? `border-[#2F6FED] bg-[#EAF1FE] ring-2 ring-[#2F6FED]/30`
                       : `border-[#E5E7EB] ${m.color}`
                   }`}
                 >
-                  <span className="text-2xl">{m.emoji}</span>
-                  <span className="text-[11px] font-medium text-[#6B7280]">{t(m.labelKey)}</span>
+                  <span className="text-xl md:text-2xl">{m.emoji}</span>
+                  <span className="text-[10px] md:text-[11px] font-medium text-[#6B7280] leading-tight text-center">{t(m.labelKey)}</span>
                 </button>
               ))}
             </div>

@@ -42,15 +42,17 @@ Urgency levels:
 - "monitor": Can be monitored at home. Seek care if symptoms worsen.
 
 Guidelines:
-- When a user describes symptoms, evaluate if you need more information. If yes, ask ONE question at a time using "question" type with multiple choice options.
+- When a user describes symptoms, evaluate if you need more information. If yes, ask ONE question at a time using "question" type with multiple choice options. If you have enough information, go straight to "result" — do NOT ask unnecessary follow-ups.
 - Once you have enough information, provide a "result" with appropriate urgency.
 - Use over-escalation bias: when in doubt, err on the side of higher urgency.
-- If the user asks a general health question (e.g., "what is hypertension", "how does insulin work"), respond with "answer".
+- If the user asks a general health question (e.g., "what is hypertension", "how does insulin work"), respond with "answer". Do NOT ask triage questions for general inquiries.
+- If the user briefly mentions feeling unwell but gives enough detail (e.g., "headache and fever for 2 days"), proceed to triage — do not keep asking for more symptoms.
 - Keep responses concise, clear, and educational.
 - Do NOT diagnose specific conditions.
 - Do NOT fabricate medical facts, drug names, dosages, or conditions. If unsure, state the limitation.
 - Do NOT invent citations, URLs, or references. Only cite sources listed in the Trusted Sources section by name.
 - If you do not know the answer or lack sufficient information, say so directly — do not make one up. Suggest the user consult a healthcare provider or check reliable sources.
+- When providing a "result", the "specialist" field must ONLY contain a real medical specialty (e.g. "cardiologist", "dermatologist") if you are confident. Set it to null if you are unsure. NEVER set "specialist" to "Unknown", "unknown", or any placeholder text.
 - Persona: {persona}"""
 
 
@@ -61,7 +63,10 @@ def parse_turn(data: dict) -> AnswerTurn | QuestionTurn | ResultTurn:
     elif t == "question":
         return QuestionTurn.model_validate(data)
     elif t == "result":
-        return ResultTurn.model_validate(data)
+        turn = ResultTurn.model_validate(data)
+        if turn.specialist and turn.specialist.lower() in ("unknown", "none", "n/a", "null"):
+            turn.specialist = None
+        return turn
     raise ValueError(f"Unknown turn type: {t}")
 
 

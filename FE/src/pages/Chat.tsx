@@ -219,7 +219,7 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
     try {
       const s = await listSessions();
       setSessions(s);
-      if (s.length > 0 && !activeSessionId) {
+      if (s.length > 0 && !activeSessionId && !searchParams.get("q")) {
         await selectSession(s[0].id);
       }
     } catch {

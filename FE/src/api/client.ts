@@ -55,24 +55,24 @@ export async function getSessionMessages(
   return res.json();
 }
 
-export async function listJournalEntries(): Promise<JournalEntry[]> {
-  const res = await fetch(`${API_BASE}/journal`);
+export async function listJournalEntries(userId: string): Promise<JournalEntry[]> {
+  const res = await fetch(`${API_BASE}/journal?user_id=${encodeURIComponent(userId)}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-export async function saveJournalEntry(mood: Mood, content: string): Promise<JournalEntry> {
+export async function saveJournalEntry(mood: Mood, content: string, userId: string): Promise<JournalEntry> {
   const res = await fetch(`${API_BASE}/journal`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mood, content }),
+    body: JSON.stringify({ mood, content, user_id: userId }),
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-export async function deleteJournalEntry(entryId: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/journal/${entryId}`, { method: "DELETE" });
+export async function deleteJournalEntry(entryId: string, userId: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/journal/${entryId}?user_id=${encodeURIComponent(userId)}`, { method: "DELETE" });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 

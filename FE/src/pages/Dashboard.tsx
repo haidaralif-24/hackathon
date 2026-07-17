@@ -13,7 +13,7 @@ const MOODS: { value: Mood; emoji: string; label: string }[] = [
   { value: "terrible", emoji: "😢", label: "Terrible" },
 ]
 
-export default function Dashboard({ userName }: { userName?: string }) {
+export default function Dashboard({ userName, userId }: { userName?: string; userId?: string }) {
   const [input, setInput] = useState("")
   const navigate = useNavigate()
   const firstName = userName?.split(" ")[0] || "there"
@@ -21,15 +21,17 @@ export default function Dashboard({ userName }: { userName?: string }) {
   const [moodText, setMoodText] = useState("")
 
   useEffect(() => {
-    listJournalEntries().then(setEntries).catch(() => {})
-  }, [])
+    if (userId) listJournalEntries(userId).then(setEntries).catch(() => {})
+  }, [userId])
 
   const todayStr = new Date().toISOString().slice(0, 10)
   const todayEntry = entries.find((e) => e.created_at.startsWith(todayStr))
 
   async function handleMoodClick(mood: Mood) {
+    if (!userId) return
     try {
-      const saved = await saveJournalEntry(mood, moodText)
+      const saved = await saveJournalEntry(mood, moodText, userId)
+      setMoodText("")
       setMoodText("")
       setEntries((prev) => {
         const filtered = prev.filter((e) => !e.created_at.startsWith(todayStr))

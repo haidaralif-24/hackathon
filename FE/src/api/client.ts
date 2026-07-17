@@ -16,7 +16,7 @@ export async function sendChatMessage(
   history: { role: string; content: string }[],
   persona = "straightforward",
   sessionId?: string,
-): Promise<ChatTurn> {
+): Promise<{ session_id: string; turn: ChatTurn }> {
   const res = await fetch(`${API_BASE}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

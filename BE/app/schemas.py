@@ -94,6 +94,14 @@ class ResultTurn(BaseModel):
     specialist: Optional[str] = None
 
 
+ChatTurn = Union[AnswerTurn, QuestionTurn, ResultTurn]
+
+
+class ChatResponse(BaseModel):
+    session_id: str
+    turn: ChatTurn
+
+
 class ReflectionGenerate(BaseModel):
     user_id: str
 

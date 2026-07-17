@@ -316,12 +316,13 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
         role: m.role,
         content: m.content,
       }));
-      const turn: ChatTurn = await sendChatMessage(
+      const { session_id, turn } = await sendChatMessage(
         text,
         history,
         persona,
         activeSessionId || undefined,
       );
+      setActiveSessionId(session_id);
       const content =
         turn.type === "answer"
           ? turn.text

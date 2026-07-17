@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.config import settings
 from app.database import get_supabase
-from app.schemas import AnswerTurn, ChatRequest, QuestionTurn, ResultTurn
+from app.schemas import AnswerTurn, ChatRequest, ChatResponse, QuestionTurn, ResultTurn
 from app.services.triage import build_health_context, run_triage
 
 router = APIRouter(prefix="/chat", tags=["chat"])
@@ -15,8 +15,8 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 ChatTurn = Union[AnswerTurn, QuestionTurn, ResultTurn]
 
 
-@router.post("", response_model=ChatTurn)
-def chat(req: ChatRequest) -> ChatTurn:
+@router.post("", response_model=ChatResponse)
+def chat(req: ChatRequest) -> ChatResponse:
     if not settings.llm_api_key:
         raise HTTPException(status_code=500, detail="LLM_API_KEY not configured on server")
     if not settings.llm_base_url:
@@ -73,4 +73,4 @@ def chat(req: ChatRequest) -> ChatTurn:
 
     supabase.table("chat_sessions").update({"updated_at": datetime.now(timezone.utc).isoformat()}).eq("id", session_id).execute()
 
-    return turn
+    return ChatResponse(session_id=session_id, turn=turn)

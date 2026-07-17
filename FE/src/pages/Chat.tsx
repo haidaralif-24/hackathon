@@ -270,8 +270,15 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
       });
       setMessages(loaded);
       setLastUrgency(foundUrgency);
-    } catch {
-      setMessages([]);
+    } catch (e) {
+      console.error("Failed to load session messages:", e);
+      setMessages([
+        {
+          role: "assistant",
+          content: "Gagal memuat pesan. Coba refresh atau pilih sesi lain.",
+          timestamp: now(),
+        },
+      ]);
     } finally {
       setLoadingMsgs(false);
     }

@@ -42,3 +42,12 @@ create table if not exists public.journal_entries (
     content text not null default '',
     created_at timestamptz default now()
 );
+
+create table if not exists public.reflections (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid not null,
+    week_start date not null,
+    week_end date not null,
+    content text not null,
+    created_at timestamptz default now()
+);

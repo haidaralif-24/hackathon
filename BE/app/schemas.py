@@ -92,3 +92,16 @@ class ResultTurn(BaseModel):
     urgency: Urgency
     explanation: str
     specialist: Optional[str] = None
+
+
+class ReflectionGenerate(BaseModel):
+    user_id: str
+
+
+class ReflectionOut(BaseModel):
+    id: str
+    user_id: str
+    week_start: str
+    week_end: str
+    content: str
+    created_at: str

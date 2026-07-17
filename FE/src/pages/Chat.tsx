@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { sendChatMessage, listSessions, deleteSession, getSessionMessages } from "../api/client"
 import type { ChatSession, ChatTurn, Message } from "../types"
-import { Send, Loader2, HeartPulse, ChevronDown, Plus, X, MessageCircle } from "lucide-react"
+import { Send, Loader2, ChevronDown, Plus, X, MessageCircle } from "lucide-react"
 import MapMessage from "../components/MapMessage"
 
 function now(): string {
@@ -66,8 +66,8 @@ function ChatBubbleAssistant({
 }) {
   return (
     <div className="flex gap-3">
-      <div className="w-8 h-8 rounded-full bg-[#2F6FED] flex items-center justify-center shrink-0 mt-1">
-        <HeartPulse className="w-4 h-4 text-white" />
+      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 mt-1">
+        <img src="/BenHealthy.png" alt="Ben" className="w-full h-full object-cover" />
       </div>
       <div className="max-w-[70%]">
         <div className="bg-white border border-[#E5E7EB] text-[#111827] rounded-2xl rounded-bl-md px-4 py-2.5 text-sm leading-relaxed shadow-sm">
@@ -471,8 +471,8 @@ export default function Chat({ userName, userAvatar }: ChatProps) {
             )}
           {loading && (
             <div className="flex gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#2F6FED] flex items-center justify-center shrink-0">
-                <HeartPulse className="w-4 h-4 text-white" />
+              <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+                <img src="/BenHealthy.png" alt="Ben" className="w-full h-full object-cover" />
               </div>
               <div className="bg-white border border-[#E5E7EB] rounded-2xl rounded-bl-md px-4 py-3 shadow-sm">
                 <Loader2 className="w-4 h-4 animate-spin text-[#2F6FED]" />

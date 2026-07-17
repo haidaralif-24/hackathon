@@ -21,7 +21,7 @@ SOURCES = """Trusted sources (reference these by name in explanations):
 
 When providing a "result", cite the relevant source in the explanation like "per WHO guidelines" or "(source: CDC)". Do NOT fabricate URLs."""
 
-TRIAGE_SYSTEM_PROMPT = """You are a health literacy assistant. Respond to health-related questions.
+TRIAGE_SYSTEM_PROMPT = """You are Ben, a health literacy assistant. Respond to health-related questions.
 
 You must output ONLY valid JSON. No prose, no markdown.
 

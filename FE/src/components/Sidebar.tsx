@@ -50,20 +50,47 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
       >
         <div
           onClick={handleLogoClick}
-          className={`h-16 flex items-center ${showFull ? "md:justify-start md:px-5 md:gap-2.5" : "md:justify-center"} lg:justify-start lg:gap-2.5 lg:px-5 cursor-pointer md:cursor-pointer lg:cursor-default group`}
+          className={`h-16 flex items-center cursor-pointer md:cursor-pointer lg:cursor-default group ${
+            showFull ? "md:justify-start md:px-5 md:gap-2.5" : "md:justify-center"
+          } lg:justify-start lg:gap-2.5 lg:px-5`}
         >
-          <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
-            <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+          {/* Desktop logo */}
+          <div className="hidden lg:flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+              <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-base font-bold tracking-tight">
+              <span className="text-[#111827]">Ben</span>
+              <span className="text-[#2F6FED]">Healthy</span>
+            </span>
           </div>
-          <span className={`text-base font-bold tracking-tight ${showFull ? "md:inline" : "md:hidden"} lg:inline`}>
-            <span className="text-[#111827]">Ben</span>
-            <span className="text-[#2F6FED]">Healthy</span>
-          </span>
-          <ChevronRight
-            className={`w-4 h-4 text-gray-400 transition-transform md:block lg:hidden ${
-              showFull ? "rotate-180" : ""
-            } group-hover:opacity-100 ${showFull ? "opacity-100" : "opacity-0"}`}
-          />
+
+          {/* Tablet: logo shown by default, replaced by arrow on hover */}
+          <div className="hidden md:flex lg:hidden items-center">
+            <div className={`w-9 h-9 rounded-lg overflow-hidden shrink-0 ${showFull ? "hidden" : "group-hover:hidden"}`}>
+              <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            </div>
+            <div className={`w-9 h-9 rounded-lg bg-[#EAF1FE] flex items-center justify-center shrink-0 ${showFull ? "flex" : "hidden group-hover:flex"}`}>
+              <ChevronRight className={`w-5 h-5 text-[#2F6FED] transition-transform ${showFull ? "rotate-180" : ""}`} />
+            </div>
+            <span className={`text-base font-bold tracking-tight ml-2.5 ${showFull ? "inline" : "hidden"}`}>
+              <span className="text-[#111827]">Ben</span>
+              <span className="text-[#2F6FED]">Healthy</span>
+            </span>
+          </div>
+
+          {/* Phone: no hover, just logo + text when open */}
+          <div className="flex md:hidden items-center gap-2.5">
+            <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+              <img src="/BenHealthy.png" alt="Ben Healthy" className="w-full h-full object-cover" />
+            </div>
+            {showFull && (
+              <span className="text-base font-bold tracking-tight">
+                <span className="text-[#111827]">Ben</span>
+                <span className="text-[#2F6FED]">Healthy</span>
+              </span>
+            )}
+          </div>
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1 flex flex-col items-center md:items-center lg:items-stretch">

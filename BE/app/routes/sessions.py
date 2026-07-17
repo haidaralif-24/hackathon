@@ -2,52 +2,44 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import get_user_id
 from app.database import get_supabase
-from app.schemas import ChatMessageOut, ChatSessionCreate, ChatSessionOut, ChatSessionUpdate
+from app.schemas import ChatMessageOut, ChatSessionOut
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
 
 
 @router.get("", response_model=list[ChatSessionOut])
-def list_sessions():
+def list_sessions(user_id: str = Depends(get_user_id)):
     supabase = get_supabase()
-    resp = supabase.table("chat_sessions").select("*").order("updated_at", desc=True).execute()
+    resp = (
+        supabase.table("chat_sessions")
+        .select("*")
+        .eq("user_id", user_id)
+        .order("updated_at", desc=True)
+        .execute()
+    )
     return resp.data or []
 
 
-@router.post("", response_model=ChatSessionOut)
-def create_session(body: ChatSessionCreate = ChatSessionCreate()):
-    supabase = get_supabase()
-    resp = supabase.table("chat_sessions").insert({"title": body.title}).execute()
-    return resp.data[0]
-
-
 @router.delete("/{session_id}")
-def delete_session(session_id: str):
+def delete_session(session_id: str, user_id: str = Depends(get_user_id)):
     supabase = get_supabase()
+    owner = supabase.table("chat_sessions").select("user_id").eq("id", session_id).execute().data
+    if not owner or owner[0]["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not your session")
     supabase.table("chat_sessions").delete().eq("id", session_id).execute()
     return {"deleted": True}
 
 
-@router.put("/{session_id}", response_model=ChatSessionOut)
-def update_session(session_id: str, body: ChatSessionUpdate):
-    supabase = get_supabase()
-    resp = (
-        supabase.table("chat_sessions")
-        .update({"title": body.title, "updated_at": datetime.now(timezone.utc).isoformat()})
-        .eq("id", session_id)
-        .execute()
-    )
-    if not resp.data:
-        raise HTTPException(status_code=404, detail="Session not found")
-    return resp.data[0]
-
-
 @router.get("/{session_id}/messages", response_model=list[ChatMessageOut])
-def get_messages(session_id: str):
+def get_messages(session_id: str, user_id: str = Depends(get_user_id)):
     supabase = get_supabase()
+    owner = supabase.table("chat_sessions").select("user_id").eq("id", session_id).execute().data
+    if not owner or owner[0]["user_id"] != user_id:
+        raise HTTPException(status_code=403, detail="Not your session")
     resp = (
         supabase.table("chat_messages")
         .select("*")

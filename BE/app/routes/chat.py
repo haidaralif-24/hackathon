@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import get_user_id
 from app.config import settings
 from app.database import get_supabase
 from app.schemas import ChatRequest, ChatResponse
@@ -13,7 +14,7 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 
 
 @router.post("", response_model=ChatResponse)
-def chat(req: ChatRequest) -> ChatResponse:
+def chat(req: ChatRequest, user_id: str = Depends(get_user_id)) -> ChatResponse:
     if not settings.llm_api_key:
         raise HTTPException(status_code=500, detail="LLM_API_KEY not configured on server")
     if not settings.llm_base_url:
@@ -23,8 +24,15 @@ def chat(req: ChatRequest) -> ChatResponse:
     session_id = req.session_id
 
     if not session_id:
-        resp = supabase.table("chat_sessions").insert({"title": "New Chat"}).execute()
+        resp = supabase.table("chat_sessions").insert({
+            "title": "New Chat",
+            "user_id": user_id,
+        }).execute()
         session_id = resp.data[0]["id"]
+    else:
+        owner = supabase.table("chat_sessions").select("user_id").eq("id", session_id).execute().data
+        if not owner or owner[0]["user_id"] != user_id:
+            raise HTTPException(status_code=403, detail="Not your session")
 
     supabase.table("chat_messages").insert({
         "session_id": session_id,

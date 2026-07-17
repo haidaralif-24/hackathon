@@ -1,9 +1,36 @@
+import { supabase } from "../lib/supabase";
+
 export let API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 if (API_BASE && !/^https?:\/\//.test(API_BASE)) {
   API_BASE = `https://${API_BASE}`;
 }
 
 import type { ChatSession, ChatTurn, JournalEntry, Mood } from "../types";
+
+async function authHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  if (!token) return { "Content-Type": "application/json" };
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+async function authGet(url: string): Promise<Response> {
+  const headers = await authHeaders();
+  return fetch(url, { headers });
+}
+
+async function authPost(url: string, body: unknown): Promise<Response> {
+  const headers = await authHeaders();
+  return fetch(url, { method: "POST", headers, body: JSON.stringify(body) });
+}
+
+async function authDelete(url: string): Promise<Response> {
+  const headers = await authHeaders();
+  return fetch(url, { method: "DELETE", headers });
+}
 
 export async function checkHealth(): Promise<{ status: string }> {
   const res = await fetch(`${API_BASE}/health`);
@@ -17,62 +44,44 @@ export async function sendChatMessage(
   persona = "straightforward",
   sessionId?: string,
 ): Promise<{ session_id: string; turn: ChatTurn }> {
-  const res = await fetch(`${API_BASE}/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message, history, persona, session_id: sessionId }),
-  });
+  const res = await authPost(`${API_BASE}/chat`, { message, history, persona, session_id: sessionId });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
 export async function listSessions(): Promise<ChatSession[]> {
-  const res = await fetch(`${API_BASE}/sessions`);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
-}
-
-export async function createSession(): Promise<ChatSession> {
-  const res = await fetch(`${API_BASE}/sessions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
-  });
+  const res = await authGet(`${API_BASE}/sessions`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/sessions/${sessionId}`, { method: "DELETE" });
+  const res = await authDelete(`${API_BASE}/sessions/${sessionId}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 
 export async function getSessionMessages(
   sessionId: string,
 ): Promise<{ id: string; session_id: string; role: string; content: string; created_at: string }[]> {
-  const res = await fetch(`${API_BASE}/sessions/${sessionId}/messages`);
+  const res = await authGet(`${API_BASE}/sessions/${sessionId}/messages`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-export async function listJournalEntries(userId: string): Promise<JournalEntry[]> {
-  const res = await fetch(`${API_BASE}/journal?user_id=${encodeURIComponent(userId)}`);
+export async function listJournalEntries(): Promise<JournalEntry[]> {
+  const res = await authGet(`${API_BASE}/journal`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-export async function saveJournalEntry(mood: Mood, content: string, userId: string): Promise<JournalEntry> {
-  const res = await fetch(`${API_BASE}/journal`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mood, content, user_id: userId }),
-  });
+export async function saveJournalEntry(mood: Mood, content: string): Promise<JournalEntry> {
+  const res = await authPost(`${API_BASE}/journal`, { mood, content });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
-export async function deleteJournalEntry(entryId: string, userId: string): Promise<void> {
-  const res = await fetch(`${API_BASE}/journal/${entryId}?user_id=${encodeURIComponent(userId)}`, { method: "DELETE" });
+export async function deleteJournalEntry(entryId: string): Promise<void> {
+  const res = await authDelete(`${API_BASE}/journal/${entryId}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 }
 

@@ -92,7 +92,7 @@ export const id = {
   hr_no_records: "Belum ada data. Sinkronkan folder untuk memulai.",
   hr_selected_folder: "Folder terpilih",
   hr_no_structured_data: "Tidak ada data terstruktur.",
-  hr_demo_warning: "Mode Demo — Verifikasi Google Drive tertunda. Sinkronisasi menggunakan data sampel kesehatan.",
+  hr_demo_warning: "Mode Demo — Jangan ubah tautan folder Google Drive. Hanya folder ini yang berfungsi karena verifikasi Google Drive tertunda. Sinkronisasi menggunakan data sampel kesehatan.",
 
   account_preferences: "Preferensi",
   account_chat_tone: "Nada Bicara Chat",
@@ -224,7 +224,7 @@ export const en: Record<string, string> = {
   hr_no_records: "No records yet. Sync a folder to get started.",
   hr_selected_folder: "Selected folder",
   hr_no_structured_data: "No structured data extracted.",
-  hr_demo_warning: "⚠ Demo mode — Google Drive verification pending. Sync uses sample health data.",
+  hr_demo_warning: "⚠ Demo mode — Do not change the Google Drive folder link. Only this folder works due to pending Google Drive verification. Sync uses sample health data.",
 
   account_preferences: "Preferences",
   account_chat_tone: "Chat Tone",

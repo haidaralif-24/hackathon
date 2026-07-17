@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 
+from app.auth import get_user_id
 from app.config import settings
 from app.schemas import ReflectionOut
 from app.services.reflection import (
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/reflect", tags=["reflect"])
 
 
 @router.post("", response_model=ReflectionOut)
-def reflect(user_id: str):
+def reflect(user_id: str = Depends(get_user_id)):
     if not settings.llm_api_key:
         raise HTTPException(status_code=500, detail="LLM_API_KEY not configured")
 
@@ -36,7 +37,7 @@ def reflect(user_id: str):
 
 
 @router.get("", response_model=ReflectionOut | dict)
-def get_reflection(user_id: str):
+def get_reflection(user_id: str = Depends(get_user_id)):
     latest = get_latest_reflection(user_id)
     if not latest:
         return {"reflection": None, "message": "Belum ada refleksi. Coba generate dulu!"}
